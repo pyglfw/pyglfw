@@ -1,62 +1,22 @@
 # coding=utf-8
 
-import ctypes
-
-# features:
-#   - u_char_p: transparently pass bytes, str and unicode objects to functions expecting "const char *"
-#   - u_char_p: transparently receive str from functions returning "const char *"
-#   - define: transparently define outparam functions without wrapper
-#   - define: transparently define functions in specific namespace
-
-from ctypes import c_int, c_char_p, c_void_p, c_float, c_double, c_ushort, POINTER, Structure
+from ctypes import c_int, c_uint, c_char_p, c_void_p, c_float, c_double, c_ushort, c_ubyte
+from ctypes import addressof, cast, py_object, CFUNCTYPE, POINTER, Structure
 
 import sys
 
-if sys.version_info[0] < 3:
-    uni_str = unicode
-else:
-    uni_str = str
-
-class u_char_p(ctypes.c_char_p):
-    @classmethod
-    def from_param(cls, obj):
-        if isinstance(obj, uni_str):
-            obj = obj.encode()
-        return ctypes.c_char_p(obj)
-
-def ret_char_p(obj, func, args):
-    if str is uni_str:
-        obj = obj.decode()
-    return obj
-
-class object_p(ctypes.c_void_p):
-    @classmethod
-    def from_param(cls, obj):
-        return id(obj)
-
-def ret_object(obj, func, args):
-    return ctypes.cast(obj, ctypes.py_object).value
-
-def ret_list_p(icount):
-    def sz_array_p(obj, func, args):
-        return [ obj[i] for i in range(args[icount].value) ]
-    return sz_array_p
-
-def ret_addr_p(obj, func, args):
-    return obj.contents
+from ctypes import cdll as dll
 
 c_void = None
-func = ctypes.CFUNCTYPE
+c_func = CFUNCTYPE
 
-_glfw = ctypes.windll.glfw3
+# ---- definition helper factory ----
 
-class Define(object):
-    def __init__(self, lib, functype, export=None):
+class _DeclareFunction(object):
+    def __init__(self, lib, functype):
         self.lib = lib
         self.fun = functype
-
-        if export is None: export = sys.modules[__name__]
-        self.exp = export
+        self.dir = {}
 
     def __call__(self, name, restype=c_void, *argtypes):
 
@@ -79,18 +39,99 @@ class Define(object):
         func = self.fun(restype, *argtypes)((name, self.lib), tuple(paramflags))
         if errcheck: func.errcheck = errcheck
 
-        setattr(self.exp, name, func)
+        self.dir[name] = func
+
+
+_declare = _DeclareFunction(dll.glfw3, c_func)
+
+# ---- ret/arg helper functions ----
+
+class object_p(c_void_p):
+    @classmethod
+    def from_param(cls, obj):
+        return id(obj)
+
+def ret_object(obj, func, args):
+    return cast(obj, py_object).value
+
+def ret_list_p(icount):
+    def sz_array_p(obj, func, args):
+        return [ obj[i] for i in range(args[icount].value) ]
+    return sz_array_p
+
+def ret_addr_p(obj, func, args):
+    return obj.contents
+
+def allow_void_p_param(func):
+    def cast_from_void_p(cls, obj):
+        if isinstance(obj, c_void_p):
+            return cast(obj, cls)
+        else:
+            return func(obj)
+    return cast_from_void_p
+
+def get_void_p(obj):
+    return cast(obj, c_void_p)
+
+def _POINTER(cls):
+    cls = POINTER(cls)
+    cls.from_param = classmethod(allow_void_p_param(cls.from_param))
+    cls.get_void_p = get_void_p
+    return cls
+
+# ---- constant definitions ----
+
+GLFW_NOT_INITIALIZED        = 0x00010001
+GLFW_NO_CURRENT_CONTEXT     = 0x00010002
+GLFW_INVALID_ENUM           = 0x00010003
+GLFW_INVALID_VALUE          = 0x00010004
+GLFW_OUT_OF_MEMORY          = 0x00010005
+GLFW_API_UNAVAILABLE        = 0x00010006
+GLFW_VERSION_UNAVAILABLE    = 0x00010007
+GLFW_PLATFORM_ERROR         = 0x00010008
+GLFW_FORMAT_UNAVAILABLE     = 0x00010009
+
+GLFW_FOCUSED                = 0x00020001
+GLFW_ICONIFIED              = 0x00020002
+GLFW_RESIZABLE              = 0x00020003
+GLFW_VISIBLE                = 0x00020004
+GLFW_DECORATED              = 0x00020005
+
+GLFW_CURSOR                 = 0x00033001
+GLFW_STICKY_KEYS            = 0x00033002
+GLFW_STICKY_MOUSE_BUTTONS   = 0x00033003
+
+GLFW_CURSOR_NORMAL          = 0x00034001
+GLFW_CURSOR_HIDDEN          = 0x00034002
+GLFW_CURSOR_DISABLED        = 0x00034003
+
+GLFW_MOUSE_BUTTON_1         = 0
+GLFW_MOUSE_BUTTON_2         = 1
+GLFW_MOUSE_BUTTON_3         = 2
+GLFW_MOUSE_BUTTON_4         = 3
+GLFW_MOUSE_BUTTON_5         = 4
+GLFW_MOUSE_BUTTON_6         = 5
+GLFW_MOUSE_BUTTON_7         = 6
+GLFW_MOUSE_BUTTON_8         = 7
+GLFW_MOUSE_BUTTON_LAST      = GLFW_MOUSE_BUTTON_8
+GLFW_MOUSE_BUTTON_LEFT      = GLFW_MOUSE_BUTTON_1
+GLFW_MOUSE_BUTTON_RIGHT     = GLFW_MOUSE_BUTTON_2
+GLFW_MOUSE_BUTTON_MIDDLE    = GLFW_MOUSE_BUTTON_3
+
+GLFW_KEY_ESCAPE = 256
+
+# ---- structure definitions ----
 
 
 class GLFWwindow(Structure):
     pass
 
-GLFWwindowP = POINTER(GLFWwindow)
+GLFWwindowP = _POINTER(GLFWwindow)
 
 class GLFWmonitor(Structure):
     pass
 
-GLFWmonitorP = POINTER(GLFWmonitor)
+GLFWmonitorP = _POINTER(GLFWmonitor)
 
 class GLFWvidmode(Structure):
     _fields_ = [
@@ -116,126 +157,140 @@ GLFWgammarampP = POINTER(GLFWgammaramp)
 
 # ---- callback prototypes ----
 
+GLFWerrorfun            = c_func(c_void,    c_int, c_char_p)
+GLFWwindowposfun        = c_func(c_void,    GLFWwindowP, c_int, c_int)
+GLFWwindowsizefun       = c_func(c_void,    GLFWwindowP, c_int, c_int)
+GLFWwindowclosefun      = c_func(c_void,    GLFWwindowP)
+GLFWwindowrefreshfun    = c_func(c_void,    GLFWwindowP)
+GLFWwindowfocusfun      = c_func(c_void,    GLFWwindowP, c_int)
+GLFWwindowiconifyfun    = c_func(c_void,    GLFWwindowP)
+GLFWframebuffersizefun  = c_func(c_void,    GLFWwindowP, c_int, c_int)
+GLFWmousebuttonfun      = c_func(c_void,    GLFWwindowP, c_int, c_int, c_int)
+GLFWcursorposfun        = c_func(c_void,    GLFWwindowP, c_double, c_double)
+GLFWcursorenterfun      = c_func(c_void,    GLFWwindowP, c_int)
+GLFWscrollfun           = c_func(c_void,    GLFWwindowP, c_double, c_double)
+GLFWkeyfun              = c_func(c_void,    GLFWwindowP, c_int, c_int, c_int, c_int)
+GLFWcharfun             = c_func(c_void,    GLFWwindowP, c_uint)
+GLFWmonitorfun          = c_func(c_void,    GLFWmonitorP, c_int)
 
 # ---- function definition ----
 
-define = Define(_glfw, func)
+# ==== common ====
 
-# common
-define('glfwInit', c_int)
-define('glfwTerminate')
+_declare('glfwInit', c_int)
+_declare('glfwTerminate')
+_declare('glfwGetVersion', c_void, (POINTER(c_int),), (POINTER(c_int),), (POINTER(c_int),))
+_declare('glfwGetVersionString', c_char_p)
+_declare('glfwSetErrorCallback', GLFWerrorfun, GLFWerrorfun)
 
-define('glfwGetVersion', c_void, (POINTER(c_int),), (POINTER(c_int),), (POINTER(c_int),))
-define('glfwGetVersionString', (c_char_p, ret_char_p))
+_declare('glfwExtensionSupported', c_int, c_char_p)
+_declare('glfwGetProcAddress', c_void_p, c_char_p)
 
-define('glfwExtensionSupported', c_int, u_char_p)
-define('glfwGetProcAddress', c_void_p, u_char_p)
+_declare('glfwGetTime', c_double)
+_declare('glfwSetTime', c_void, c_double)
 
-define('glfwGetTime', c_double)
-define('glfwSetTime', c_void, c_double)
+_declare('glfwGetClipboardString', c_char_p, GLFWwindowP)
+_declare('glfwSetClipboardString', c_void, GLFWwindowP, c_char_p)
 
-define('glfwGetClipboardString', (c_char_p, ret_char_p), GLFWwindowP)
-define('glfwSetClipboardString', c_void, GLFWwindowP, u_char_p)
+# ==== screen ====
 
-# screen
+_declare('glfwGetMonitors', (POINTER(GLFWmonitorP), ret_list_p(0)), (POINTER(c_int),))
+_declare('glfwGetPrimaryMonitor', GLFWmonitorP)
+_declare('glfwGetMonitorPos', c_void, GLFWmonitorP, (POINTER(c_int),), (POINTER(c_int),))
+_declare('glfwGetMonitorPhysicalSize', c_void, GLFWmonitorP, (POINTER(c_int),), (POINTER(c_int),))
+_declare('glfwGetMonitorName', c_char_p, GLFWmonitorP)
+_declare('glfwSetMonitorCallback', GLFWmonitorfun, GLFWmonitorfun)
 
-define('glfwGetPrimaryMonitor', GLFWmonitorP)
-define('glfwGetMonitorName', (c_char_p, ret_char_p), GLFWmonitorP)
-define('glfwGetMonitorPos', c_void, GLFWmonitorP, (POINTER(c_int),), (POINTER(c_int),))
-define('glfwGetMonitorPhysicalSize', c_void, GLFWmonitorP, (POINTER(c_int),), (POINTER(c_int),))
+_declare('glfwGetVideoMode', (GLFWvidmodeP, ret_addr_p), GLFWmonitorP)
+_declare('glfwGetVideoModes', (GLFWvidmodeP, ret_list_p(1)), c_void_p, (POINTER(c_int),))
 
-define('glfwGetMonitors', (POINTER(GLFWmonitorP), ret_list_p(0)), (POINTER(c_int),))
-define('glfwGetVideoMode', (GLFWvidmodeP, ret_addr_p), GLFWmonitorP)
-define('glfwGetVideoModes', (GLFWvidmodeP, ret_list_p(1)), c_void_p, (POINTER(c_int),))
+_declare('glfwSetGamma', c_void, GLFWmonitorP, c_float)
+_declare('glfwGetGammaRamp', (GLFWgammarampP, ret_addr_p), GLFWmonitorP)
+_declare('glfwSetGammaRamp', c_void, GLFWmonitorP, GLFWgammarampP)
 
-define('glfwSetGamma', c_void, GLFWmonitorP, c_float)
-define('glfwGetGammaRamp', (GLFWgammarampP, ret_addr_p), GLFWmonitorP)
-define('glfwSetGammaRamp', c_void, GLFWmonitorP, GLFWgammarampP)
+# ==== window ====
 
+_declare('glfwCreateWindow', GLFWwindowP, c_int, c_int, c_char_p, c_void_p, c_void_p)
+_declare('glfwDestroyWindow', c_void, GLFWwindowP)
+_declare('glfwMakeContextCurrent', c_void, GLFWwindowP)
+_declare('glfwGetCurrentContext', GLFWwindowP)
+_declare('glfwSwapBuffers', c_void, GLFWwindowP)
+_declare('glfwSwapInterval', c_void, c_int)
 
-# window
-define('glfwCreateWindow', GLFWwindowP, c_int, c_int, u_char_p, c_void_p, c_void_p)
-define('glfwDestroyWindow', GLFWwindowP)
-define('glfwMakeContextCurrent', c_void, GLFWwindowP)
-define('glfwGetCurrentContext', GLFWwindowP)
-define('glfwWindowShouldClose', c_int, GLFWwindowP)
-define('glfwSetWindowShouldClose', c_void, GLFWwindowP, c_int)
-define('glfwSwapBuffers', c_void, GLFWwindowP)
-define('glfwSwapInterval', c_void, c_int)
+_declare('glfwDefaultWindowHints', c_void)
+_declare('glfwWindowHint', c_void, c_int, c_int)
+_declare('glfwGetWindowMonitor', GLFWmonitorP, GLFWwindowP)
+_declare('glfwGetWindowAttrib', c_int, GLFWwindowP, c_int)
+_declare('glfwWindowShouldClose', c_int, GLFWwindowP)
+_declare('glfwSetWindowShouldClose', c_void, GLFWwindowP, c_int)
+_declare('glfwSetWindowUserPointer', c_void, GLFWwindowP, object_p)
+_declare('glfwGetWindowUserPointer', (c_void_p, ret_object), GLFWwindowP)
 
-define('glfwGetFramebufferSize', c_void, GLFWwindowP, (POINTER(c_int),), (POINTER(c_int),))
+_declare('glfwSetWindowTitle', c_void, GLFWwindowP, c_char_p)
+_declare('glfwGetWindowPos', c_void, GLFWwindowP, (POINTER(c_int),), (POINTER(c_int),))
+_declare('glfwSetWindowPos', c_void, GLFWwindowP, c_int, c_int)
+_declare('glfwGetWindowSize', c_void, GLFWwindowP, (POINTER(c_int),), (POINTER(c_int),))
+_declare('glfwSetWindowSize', c_void, GLFWwindowP, c_int, c_int)
+_declare('glfwGetFramebufferSize', c_void, GLFWwindowP, (POINTER(c_int),), (POINTER(c_int),))
 
-define('glfwSetWindowUserPointer', c_void, GLFWwindowP, object_p)
-define('glfwGetWindowUserPointer', (c_void_p, ret_object), GLFWwindowP)
+_declare('glfwIconifyWindow', c_void, GLFWwindowP)
+_declare('glfwRestoreWindow', c_void, GLFWwindowP)
+_declare('glfwShowWindow', c_void, GLFWwindowP)
+_declare('glfwHideWindow', c_void, GLFWwindowP)
 
-# events
-define('glfwGetKey', c_int, GLFWwindowP, c_int)
-define('glfwPollEvents')
+_declare('glfwSetWindowPosCallback', GLFWwindowposfun, GLFWwindowP, GLFWwindowposfun)
+_declare('glfwSetWindowSizeCallback', GLFWwindowsizefun, GLFWwindowP, GLFWwindowsizefun)
+_declare('glfwSetWindowCloseCallback', GLFWwindowclosefun, GLFWwindowP, GLFWwindowclosefun)
+_declare('glfwSetWindowRefreshCallback', GLFWwindowrefreshfun, GLFWwindowP, GLFWwindowrefreshfun)
+_declare('glfwSetWindowFocusCallback', GLFWwindowfocusfun, GLFWwindowP, GLFWwindowfocusfun)
+_declare('glfwSetWindowIconifyCallback', GLFWwindowiconifyfun, GLFWwindowP, GLFWwindowiconifyfun)
+_declare('glfwSetFramebufferSizeCallback', GLFWframebuffersizefun, GLFWwindowP, GLFWframebuffersizefun)
 
-# cbfunc
+# ==== events ====
 
-GLFWerrorfun = func(c_void, c_int, c_char_p)
+_declare('glfwPollEvents', c_void)
+_declare('glfwWaitEvents', c_void)
 
-class GLFWerrorfunP(object):
-    _wrapback_ = None
+_declare('glfwGetInputMode', c_int, GLFWwindowP, c_int)
+_declare('glfwSetInputMode', c_void, GLFWwindowP, c_int, c_int)
 
-    @classmethod
-    def from_param(cls, obj):
-        #wrapback = None
-        if not obj:
-            cls._wrapback_ = None
-        elif callable(obj):
-            def wrap_cbfun(code, message):
-                if str is uni_str:
-                    message = message.decode()
-                return obj(code, message)
-            cls._wrapback_ = GLFWerrorfun(wrap_cbfun)
-        else:
-            cls._wrapback_ = GLFWerrorfun(obj)
-        return cls._wrapback_
+_declare('glfwGetKey', c_int, GLFWwindowP, c_int)
+_declare('glfwGetMouseButton', c_int, GLFWwindowP, c_int)
+_declare('glfwGetCursorPos', c_void, GLFWwindowP, (POINTER(c_double),), (POINTER(c_double),))
+_declare('glfwSetCursorPos', c_void, GLFWwindowP, c_double, c_double)
 
-define('glfwSetErrorCallback', GLFWerrorfun, GLFWerrorfunP)
+_declare('glfwJoystickPresent', c_int, c_int)
+_declare('glfwGetJoystickAxes', (POINTER(c_float), ret_list_p(1)), c_int, (POINTER(c_int),))
+_declare('glfwGetJoystickButtons', (POINTER(c_ubyte), ret_list_p(1)), c_int, (POINTER(c_int),))
+_declare('glfwGetJoystickName', c_char_p, c_int)
 
-GLFWkeyfun = func(c_void, GLFWwindowP, c_int, c_int, c_int, c_int)
+_declare('glfwSetKeyCallback', GLFWkeyfun, GLFWwindowP, GLFWkeyfun)
+_declare('glfwSetCharCallback', GLFWcharfun, GLFWwindowP, GLFWcharfun)
+_declare('glfwSetMouseButtonCallback', GLFWmousebuttonfun, GLFWwindowP, GLFWmousebuttonfun)
+_declare('glfwSetCursorPosCallback', GLFWcursorposfun, GLFWwindowP, GLFWcursorposfun)
+_declare('glfwSetCursorEnterCallback', GLFWcursorenterfun, GLFWwindowP, GLFWcursorenterfun)
+_declare('glfwSetScrollCallback', GLFWscrollfun, GLFWwindowP, GLFWscrollfun)
 
-class GLFWkeyfunP(object):
-    _wrapback_ = None
+all_functions = list(_declare.dir.keys())
 
-    @classmethod
-    def from_param(cls, obj):
-        print(cls)
-        if not obj:
-            cls._wrapback_ = None
-        elif isinstance(obj, GLFWkeyfun):
-            cls._wrapback_ = obj
-        elif callable(obj):
-            cls._wrapback_ = GLFWkeyfun(obj)
-            print(cls._wrapback_)
-        else:
-            cls._wrapback_ = GLFWkeyfun(obj)
-        return cls._wrapback_
-
-define('glfwSetKeyCallback', GLFWkeyfun, GLFWwindowP, GLFWkeyfunP)
-
-GLFW_KEY_ESCAPE = 256
-
-def InputKey(window, key, scancode, action, mods):
-    print(window, key, scancode, action, mods)
-
-def ShowError(code, message):
-    print(code, message)
+for func in all_functions:
+    setattr(sys.modules[__name__], func, _declare.dir[func])
 
 if __name__ == '__main__':
-    glfwSetErrorCallback(ShowError)
+    @GLFWkeyfun
+    def InputKey(window, key, scancode, action, mods):
+        print(window, key, scancode, action, mods)
 
+    def show_error(code, message):
+        print(code, message)
 
-    #print(glfwSetErrorCallback(None))
-    #print(glfwSetErrorCallback(None))
+    ShowError = GLFWerrorfun(show_error)
+    print(glfwSetErrorCallback(ShowError))
 
     if not glfwInit():
         raise RuntimeError()
 
-    print(glfwGetVersionString())
+    print(glfwGetVersionString().decode())
 
     bestmode = 0, 0, None
 
@@ -251,7 +306,7 @@ if __name__ == '__main__':
     gammar = glfwGetGammaRamp(monitors[0])
     glfwSetGammaRamp(monitors[0], gammar)
 
-    window = glfwCreateWindow(800, 600, "Привет, Мир!", None, None)
+    window = glfwCreateWindow(800, 600, "Привет, Мир!".encode(), None, None)
     #window = glfwCreateWindow(bestmode[0], bestmode[1], "Привет, Мир!", monitor, None)
     if not window:
         glfwTerminate()
@@ -259,12 +314,8 @@ if __name__ == '__main__':
 
     glfwMakeContextCurrent(window)
 
-    glfwSetClipboardString(window, "Тест")
-    print(glfwGetClipboardString(window))
-
-
-    print('WGL_EXT_swap_control', glfwExtensionSupported('WGL_EXT_swap_control'), glfwGetProcAddress('wglSwapIntervalEXT'))
-    print('GLX_MESA_swap_control', glfwExtensionSupported('GLX_MESA_swap_control'), glfwGetProcAddress('glXSwapIntervalMESA'))
+    glfwSetClipboardString(window, "Тест".encode())
+    print(glfwGetClipboardString(window).decode())
 
     glfwSwapInterval(1)
 
@@ -272,7 +323,7 @@ if __name__ == '__main__':
     glfwSetWindowUserPointer(window, size)
     fps, was = 0, glfwGetTime()
 
-    glfwSetKeyCallback(window, InputKey)
+    print(addressof(glfwSetKeyCallback(window, InputKey)))
 
     while not glfwWindowShouldClose(window):
         glfwSwapBuffers(window)
@@ -288,7 +339,6 @@ if __name__ == '__main__':
             glfwSetWindowShouldClose(window, True)
 
     print (glfwGetWindowUserPointer(window))
-    print (glfwSetKeyCallback(window, None))
 
     glfwDestroyWindow(window)
 
