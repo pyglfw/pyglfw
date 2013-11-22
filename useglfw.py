@@ -330,6 +330,16 @@ class Window(object):
         api.glfwSetCursorPos(self.handle, *x_y)
 
 
+    @classmethod
+    def _callback(cls, functype, func):
+        if not func:
+            return None
+        def wrap(handle, *args, **kwargs):
+            window = cls._instance_.get(handle.get_void_p().value, None)
+            func(window, *args, **kwargs)
+        return functype(wrap)
+
+
 
 def init():
     return bool(api.glfwInit())
@@ -349,19 +359,42 @@ def poll_events():
 def wait_events():
     api.glfwWaitEvents()
 
+class glfw(object):
+    def __init__(self):
+        raise TypeError("Objects of this class cannot be created")
+
+    api_version = api.glfwGetVersionString()
+    api_verinfo = api.glfwGetVersion()
+
+    @staticmethod
+    def init():
+        return bool(api.glfwInit())
+
+    @staticmethod
+    def terminate():
+        api.glfwTerminate()
+
+    @staticmethod
+    def poll_events():
+        api.glfwPollEvents()
+
+    @staticmethod
+    def wait_events():
+        api.glfwWaitEvents()
+
 
 if __name__ == '__main__':
-    init()
+    glfw.init()
 
-    w = Window(800, 600, api_version_string())
+    w = Window(800, 600, glfw.api_version)
     w.make_current()
     k = w.keys
 
     while not w.should_close:
         w.swap_buffers()
-        poll_events()
+        glfw.poll_events()
 
         if k.escape:
             w.should_close = True
 
-    terminate()
+    glfw.terminate()

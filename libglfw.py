@@ -66,6 +66,8 @@ def allow_void_p_param(func):
     def cast_from_void_p(cls, obj):
         if isinstance(obj, c_void_p):
             return cast(obj, cls)
+        elif not obj:
+            return None
         else:
             return func(obj)
     return cast_from_void_p
@@ -75,6 +77,11 @@ def get_void_p(obj):
 
 def _POINTER(cls):
     cls = POINTER(cls)
+    cls.from_param = classmethod(allow_void_p_param(cls.from_param))
+    cls.get_void_p = get_void_p
+    return cls
+
+def _FUNCPTR(cls):
     cls.from_param = classmethod(allow_void_p_param(cls.from_param))
     cls.get_void_p = get_void_p
     return cls
@@ -280,21 +287,21 @@ GLFWgammarampP = POINTER(GLFWgammaramp)
 
 # ---- callback prototypes ----
 
-GLFWerrorfun            = c_func(c_void,    c_int, c_char_p)
-GLFWwindowposfun        = c_func(c_void,    GLFWwindowP, c_int, c_int)
-GLFWwindowsizefun       = c_func(c_void,    GLFWwindowP, c_int, c_int)
-GLFWwindowclosefun      = c_func(c_void,    GLFWwindowP)
-GLFWwindowrefreshfun    = c_func(c_void,    GLFWwindowP)
-GLFWwindowfocusfun      = c_func(c_void,    GLFWwindowP, c_int)
-GLFWwindowiconifyfun    = c_func(c_void,    GLFWwindowP)
-GLFWframebuffersizefun  = c_func(c_void,    GLFWwindowP, c_int, c_int)
-GLFWmousebuttonfun      = c_func(c_void,    GLFWwindowP, c_int, c_int, c_int)
-GLFWcursorposfun        = c_func(c_void,    GLFWwindowP, c_double, c_double)
-GLFWcursorenterfun      = c_func(c_void,    GLFWwindowP, c_int)
-GLFWscrollfun           = c_func(c_void,    GLFWwindowP, c_double, c_double)
-GLFWkeyfun              = c_func(c_void,    GLFWwindowP, c_int, c_int, c_int, c_int)
-GLFWcharfun             = c_func(c_void,    GLFWwindowP, c_uint)
-GLFWmonitorfun          = c_func(c_void,    GLFWmonitorP, c_int)
+GLFWerrorfun            = _FUNCPTR(c_func(c_void,    c_int, c_char_p))
+GLFWwindowposfun        = _FUNCPTR(c_func(c_void,    GLFWwindowP, c_int, c_int))
+GLFWwindowsizefun       = _FUNCPTR(c_func(c_void,    GLFWwindowP, c_int, c_int))
+GLFWwindowclosefun      = _FUNCPTR(c_func(c_void,    GLFWwindowP))
+GLFWwindowrefreshfun    = _FUNCPTR(c_func(c_void,    GLFWwindowP))
+GLFWwindowfocusfun      = _FUNCPTR(c_func(c_void,    GLFWwindowP, c_int))
+GLFWwindowiconifyfun    = _FUNCPTR(c_func(c_void,    GLFWwindowP))
+GLFWframebuffersizefun  = _FUNCPTR(c_func(c_void,    GLFWwindowP, c_int, c_int))
+GLFWmousebuttonfun      = _FUNCPTR(c_func(c_void,    GLFWwindowP, c_int, c_int, c_int))
+GLFWcursorposfun        = _FUNCPTR(c_func(c_void,    GLFWwindowP, c_double, c_double))
+GLFWcursorenterfun      = _FUNCPTR(c_func(c_void,    GLFWwindowP, c_int))
+GLFWscrollfun           = _FUNCPTR(c_func(c_void,    GLFWwindowP, c_double, c_double))
+GLFWkeyfun              = _FUNCPTR(c_func(c_void,    GLFWwindowP, c_int, c_int, c_int, c_int))
+GLFWcharfun             = _FUNCPTR(c_func(c_void,    GLFWwindowP, c_uint))
+GLFWmonitorfun          = _FUNCPTR(c_func(c_void,    GLFWmonitorP, c_int))
 
 # ---- function definition ----
 
