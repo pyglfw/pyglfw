@@ -10,82 +10,6 @@ from ctypes import cdll as dll
 c_void = None
 c_func = CFUNCTYPE
 
-# ---- definition helper factory ----
-
-class _DeclareFunction(object):
-    def __init__(self, lib, functype):
-        self.lib = lib
-        self.fun = functype
-        self.dir = {}
-
-    def __call__(self, name, restype=c_void, *argtypes):
-
-        errcheck = None
-        if isinstance(restype, (list, tuple)):
-            errcheck = restype[1]
-            restype = restype[0]
-
-        paramflags = list(argtypes)
-        argtypes = list(argtypes)
-        for idx, arg in enumerate(argtypes):
-            if isinstance(arg, (list, tuple)):
-                argtypes[idx] = arg[0]
-                paramflags[idx] = arg[1:] and arg[1:] or (2,)
-            else:
-                argtypes[idx] = arg
-                paramflags[idx] = (1,)
-
-
-        func = self.fun(restype, *argtypes)((name, self.lib), tuple(paramflags))
-        if errcheck: func.errcheck = errcheck
-
-        self.dir[name] = func
-
-
-_declare = _DeclareFunction(dll.glfw3, c_func)
-
-# ---- ret/arg helper functions ----
-
-class object_p(c_void_p):
-    @classmethod
-    def from_param(cls, obj):
-        return id(obj)
-
-def ret_object(obj, func, args):
-    return cast(obj, py_object).value
-
-def ret_list_p(icount):
-    def sz_array_p(obj, func, args):
-        return [ obj[i] for i in range(args[icount].value) ]
-    return sz_array_p
-
-def ret_addr_p(obj, func, args):
-    return obj.contents
-
-def allow_void_p_param(func):
-    def cast_from_void_p(cls, obj):
-        if isinstance(obj, c_void_p):
-            return cast(obj, cls)
-        elif not obj:
-            return None
-        else:
-            return func(obj)
-    return cast_from_void_p
-
-def get_void_p(obj):
-    return cast(obj, c_void_p)
-
-def _POINTER(cls):
-    cls = POINTER(cls)
-    cls.from_param = classmethod(allow_void_p_param(cls.from_param))
-    cls.get_void_p = get_void_p
-    return cls
-
-def _FUNCPTR(cls):
-    cls.from_param = classmethod(allow_void_p_param(cls.from_param))
-    cls.get_void_p = get_void_p
-    return cls
-
 # ---- constant definitions ----
 
 GLFW_NOT_INITIALIZED        = 0x00010001
@@ -286,8 +210,87 @@ GLFW_KEY_RIGHT_SUPER        = 347
 GLFW_KEY_MENU               = 348
 GLFW_KEY_LAST               = GLFW_KEY_MENU
 
-# ---- structure definitions ----
+GLFW_CONNECTED              = 0x00040001
+GLFW_DISCONNECTED           = 0x00040002
 
+
+# ---- definition helper factory ----
+
+class _DeclareFunction(object):
+    def __init__(self, lib, functype):
+        self.lib = lib
+        self.fun = functype
+        self.dir = {}
+
+    def __call__(self, name, restype=c_void, *argtypes):
+
+        errcheck = None
+        if isinstance(restype, (list, tuple)):
+            errcheck = restype[1]
+            restype = restype[0]
+
+        paramflags = list(argtypes)
+        argtypes = list(argtypes)
+        for idx, arg in enumerate(argtypes):
+            if isinstance(arg, (list, tuple)):
+                argtypes[idx] = arg[0]
+                paramflags[idx] = arg[1:] and arg[1:] or (2,)
+            else:
+                argtypes[idx] = arg
+                paramflags[idx] = (1,)
+
+
+        func = self.fun(restype, *argtypes)((name, self.lib), tuple(paramflags))
+        if errcheck: func.errcheck = errcheck
+
+        self.dir[name] = func
+
+
+_declare = _DeclareFunction(dll.glfw3, c_func)
+
+# ---- ret/arg helper functions ----
+
+class object_p(c_void_p):
+    @classmethod
+    def from_param(cls, obj):
+        return id(obj)
+
+def ret_object(obj, func, args):
+    return cast(obj, py_object).value
+
+def ret_list_p(icount):
+    def sz_array_p(obj, func, args):
+        return [ obj[i] for i in range(args[icount].value) ]
+    return sz_array_p
+
+def ret_addr_p(obj, func, args):
+    return obj.contents
+
+def allow_void_p_param(func):
+    def cast_from_void_p(cls, obj):
+        if isinstance(obj, c_void_p):
+            return cast(obj, cls)
+        elif not obj:
+            return None
+        else:
+            return func(obj)
+    return cast_from_void_p
+
+def get_void_p(obj):
+    return cast(obj, c_void_p)
+
+def _POINTER(cls):
+    cls = POINTER(cls)
+    cls.from_param = classmethod(allow_void_p_param(cls.from_param))
+    cls.get_void_p = get_void_p
+    return cls
+
+def _FUNCPTR(cls):
+    cls.from_param = classmethod(allow_void_p_param(cls.from_param))
+    cls.get_void_p = get_void_p
+    return cls
+
+# ---- structure definitions ----
 
 class GLFWwindow(Structure):
     pass
@@ -320,6 +323,32 @@ class GLFWgammaramp(Structure):
                ]
 
 GLFWgammarampP = POINTER(GLFWgammaramp)
+
+def ret_ramp_p(obj, func, args):
+    _gramp = obj.contents
+    return (
+                [ _gramp.red[i]     for i in range(_gramp.size) ],
+                [ _gramp.green[i]   for i in range(_gramp.size) ],
+                [ _gramp.blue[i]    for i in range(_gramp.size) ],
+           )
+
+def cast_from_tuple(func):
+    def ramp_from_param(cls, obj):
+        if not (len(obj[0]) == len(obj[1]) == len(obj[2])):
+            raise ValueError("Object must be tuple of three equal-length sequences")
+
+        size = len(obj[0])
+
+        red =   (c_ushort * size)(*obj[0])
+        green = (c_ushort * size)(*obj[1])
+        blue =  (c_ushort * size)(*obj[2])
+
+        obj = GLFWgammaramp(size=size, red=red, green=green, blue=blue)
+
+        return func(obj)
+    return ramp_from_param
+
+GLFWgammarampP.from_param = classmethod(cast_from_tuple(GLFWgammarampP.from_param))
 
 # ---- callback prototypes ----
 
@@ -371,7 +400,7 @@ _declare('glfwGetVideoMode', (GLFWvidmodeP, ret_addr_p), GLFWmonitorP)
 _declare('glfwGetVideoModes', (GLFWvidmodeP, ret_list_p(1)), c_void_p, (POINTER(c_int),))
 
 _declare('glfwSetGamma', c_void, GLFWmonitorP, c_float)
-_declare('glfwGetGammaRamp', (GLFWgammarampP, ret_addr_p), GLFWmonitorP)
+_declare('glfwGetGammaRamp', (GLFWgammarampP, ret_ramp_p), GLFWmonitorP)
 _declare('glfwSetGammaRamp', c_void, GLFWmonitorP, GLFWgammarampP)
 
 # ==== window ====

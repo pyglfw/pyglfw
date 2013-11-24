@@ -161,12 +161,83 @@ class Joystick(object):
         return api.glfwGetJoystickButtons(self.joyidx)
 
 
+class Monitor(object):
+    _instance_ = []
+
+    def __eq__(self, other):
+        return self.handle == other.handle
+
+    def __ne__(self, other):
+        return not (self == other)
+
+    @api.GLFWmonitorfun
+    def _monitor_callback(_monitor, _event):
+        monobj = super(Monitor, Monitor).__new__(Monitor)
+        monobj.handle = _monitor.get_void_p()
+
+        if _event == api.GLFW_DISCONNECTED:
+            Monitor._instance_.remove(monobj)
+        elif _event == api.GLFW_CONNECTED:
+            Monitor._instance_ += [ monobj ]
+        else:
+            raise ValueError("Unknown monitor event")
+
+    def __new__(cls, monidx):
+        if not cls._instance_:
+            for midx, _moni_ in enumerate(api.glfwGetMonitors()):
+                monobj = super(Monitor, cls).__new__(cls)
+                monobj.handle = _moni_.get_void_p()
+
+                cls._instance_ += [ monobj ]
+
+            api.glfwSetMonitorCallback(cls._monitor_callback)
+
+        return cls._instance_[monidx]
+
+
+    @property
+    def pos(self):
+        return api.glfwGetMonitorPos(self.handle)
+
+    @property
+    def name(self):
+        return _str(api.glfwGetMonitorName(self.handle))
+
+    @property
+    def physical_size(self):
+        return api.glfwGetMonitorPhysicalSize(self.handle)
+
+    @property
+    def video_mode(self):
+        _vidmode = api.glfwGetVideoMode(self.handle)
+        return _vidmode.width, _vidmode.height, (_vidmode.redBits, _vidmode.greenBits, _vidmode.blueBits), _vidmode.refreshRate
+
+    @property
+    def video_modes(self):
+        _vidmodes = api.glfwGetVideoModes(self.handle)
+        return [ (vm.width, vm.height, (vm.redBits, vm.greenBits, vm.blueBits), vm.refreshRate) for vm in _vidmodes ]
+
+    def set_gamma(self, gamma):
+        api.glfwSetGamma(self.handle, gamma)
+
+    @property
+    def gamma_ramp(self):
+        return api.glfwGetGammaRamp(self.handle)
+
+    @gamma_ramp.setter
+    def gamma_ramp(self, rgb_ramp):
+        api.glfwSetGammaRamp(self.handle, rgb_ramp)
+
+
 class Window(object):
     _instance_ = {}
     _contexts_ = []
 
     def __init__(self, width, height, title, monitor=None, shared=None):
-        self.handle = api.glfwCreateWindow(width, height, _utf(title), monitor, shared).get_void_p()
+        mon_handle = monitor and monitor.handle or None
+        shr_handle = shared and shared.handle or None
+
+        self.handle = api.glfwCreateWindow(width, height, _utf(title), mon_handle, shr_handle).get_void_p()
         self.__class__._instance_[self.handle.value] = self
 
         self.mice = Mice(self.handle)
@@ -321,6 +392,9 @@ class Window(object):
 
     @staticmethod
     def hint(hints=None, no_defaults=False, **kwargs):
+        if hints and kwargs:
+            raise ValueError("Hints should be passed via object or via kwargs")
+
         if not hints:
             hints = Hints(**kwargs)
 
@@ -332,9 +406,11 @@ class Window(object):
 
     @property
     def monitor(self):
-        mon_handle = api.glfwGetWindowMonitor(self.handle)
-        if bool(mon_handle):
-            raise NotImplementedError()
+        _monitor = api.glfwGetWindowMonitor(self.handle)
+        if bool(_monitor):
+            monobj = super(Monitor, Monitor).__new__(Monitor)
+            monobj.handle = _monitor.get_void_p()
+            return monobj
         else:
             return None
 
@@ -546,21 +622,24 @@ class glfw(object):
     def wait_events():
         api.glfwWaitEvents()
 
+    @staticmethod
+    def get_time():
+        return api.glfwGetTime()
+
+    @staticmethod
+    def set_time(nsec):
+        api.glfwSetTime(nsec)
+
 
 if __name__ == '__main__':
     glfw.init()
 
-    whints = Hints(opengl_profile=Window.CORE_PROFILE, context_version=(3,2))
-    Window.hint(whints)
+    Window.hint(context_version=(3,2))
 
     w = Window(800, 600, glfw.api_version)
     w.make_current()
 
     print(w.context_version)
-    print(w.debug_context, w.forward_compat)
-    print(w.client_api == Window.OPENGL_API)
-    print(w.context_robustness == Window.NO_RESET_NOTIFICATION)
-    print(w.opengl_profile == Window.ANY_PROFILE)
 
     k = w.keys
 
