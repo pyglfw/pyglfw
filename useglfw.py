@@ -107,7 +107,7 @@ class Mice(object):
         return self[api.GLFW_MOUSE_BUTTON_MIDDLE]
 
 
-class Keys(object):
+class _Keys(object):
     def __init__(self, handle):
         self.handle = handle
 
@@ -136,7 +136,7 @@ def _keyattrs_():
     return _keyattribs_
 
 
-Keys = type('Keys', (Keys,), _keyattrs_())
+Keys = type('Keys', (_Keys,), _keyattrs_())
 
 class Joystick(object):
     def __init__(self, joyidx):
@@ -207,8 +207,9 @@ class Window(object):
     def swap_buffers(self):
         api.glfwSwapBuffers(self.handle)
 
-    def swap_interval(self):
-        raise NotImplementedError()
+    def swap_interval(self, interval):
+        with self:
+            api.glfwSwapInterval(interval)
 
     def set_title(self, title):
         api.glfwSetWindowTitle(self.handle, title)
@@ -278,6 +279,45 @@ class Window(object):
     @property
     def decorated(self):
         return bool(api.glfwGetWindowAttrib(self.handle, api.GLFW_DECORATED))
+
+    @property
+    def context_version(self):
+        return (
+                api.glfwGetWindowAttrib(self.handle, api.GLFW_CONTEXT_VERSION_MAJOR),
+                api.glfwGetWindowAttrib(self.handle, api.GLFW_CONTEXT_VERSION_MINOR),
+                api.glfwGetWindowAttrib(self.handle, api.GLFW_CONTEXT_REVISION),
+               )
+
+    @property
+    def debug_context(self):
+        return bool(api.glfwGetWindowAttrib(self.handle, api.GLFW_OPENGL_DEBUG_CONTEXT))
+
+    @property
+    def forward_compat(self):
+        return bool(api.glfwGetWindowAttrib(self.handle, api.GLFW_OPENGL_FORWARD_COMPAT))
+
+    OPENGL_API = api.GLFW_OPENGL_API
+    OPENGL_ES_API = api.GLFW_OPENGL_ES_API
+
+    @property
+    def client_api(self):
+        return api.glfwGetWindowAttrib(self.handle, api.GLFW_CLIENT_API)
+
+    CORE_PROFILE = api.GLFW_OPENGL_CORE_PROFILE
+    COMPAT_PROFILE = api.GLFW_OPENGL_COMPAT_PROFILE
+    ANY_PROFILE = api.GLFW_OPENGL_ANY_PROFILE
+
+    @property
+    def opengl_profile(self):
+        return api.glfwGetWindowAttrib(self.handle, api.GLFW_OPENGL_PROFILE)
+
+    NO_ROBUSTNESS = api.GLFW_NO_ROBUSTNESS
+    NO_RESET_NOTIFICATION = api.GLFW_NO_RESET_NOTIFICATION
+    LOSE_CONTEXT_ON_RESET = api.GLFW_LOSE_CONTEXT_ON_RESET
+
+    @property
+    def context_robustness(self):
+        return api.glfwGetWindowAttrib(self.handle, api.GLFW_CONTEXT_ROBUSTNESS)
 
     @property
     def monitor(self):
@@ -351,6 +391,134 @@ class Window(object):
         return functype(wrap)
 
 
+class _WindowHintsBase(object):
+    _hint_map_ = {
+                    'resizable' :           api.GLFW_RESIZABLE,
+                    'visible' :             api.GLFW_VISIBLE,
+                    'decorated' :           api.GLFW_DECORATED,
+                    'red_bits' :            api.GLFW_RED_BITS,
+                    'green_bits' :          api.GLFW_GREEN_BITS,
+                    'blue_bits' :           api.GLFW_BLUE_BITS,
+                    'alpha_bits' :          api.GLFW_ALPHA_BITS,
+                    'depth_bits' :          api.GLFW_DEPTH_BITS,
+                    'stencil_bits' :        api.GLFW_STENCIL_BITS,
+                    'accum_red_bits' :      api.GLFW_ACCUM_RED_BITS,
+                    'accum_green_bits' :    api.GLFW_ACCUM_GREEN_BITS,
+                    'accum_blue_bits' :     api.GLFW_ACCUM_BLUE_BITS,
+                    'accum_alpha_bits' :    api.GLFW_ACCUM_ALPHA_BITS,
+                    'aux_buffers' :         api.GLFW_AUX_BUFFERS,
+                    'samples' :             api.GLFW_SAMPLES,
+                    'refresh_rate' :        api.GLFW_REFRESH_RATE,
+                    'stereo' :              api.GLFW_STEREO,
+                    'srgb_capable' :        api.GLFW_SRGB_CAPABLE,
+                    'client_api' :          api.GLFW_CLIENT_API,
+                    'context_ver_major' :   api.GLFW_CONTEXT_VERSION_MAJOR,
+                    'context_ver_minor' :   api.GLFW_CONTEXT_VERSION_MINOR,
+                    'context_robustness' :  api.GLFW_CONTEXT_ROBUSTNESS,
+                    'debug_context' :       api.GLFW_OPENGL_DEBUG_CONTEXT,
+                    'forward_compat' :      api.GLFW_OPENGL_FORWARD_COMPAT,
+                    'opengl_profile' :      api.GLFW_OPENGL_PROFILE,
+
+                 }
+
+    _over_map_ = {
+                    'context_version' :     (
+                                                api.GLFW_CONTEXT_VERSION_MAJOR,
+                                                api.GLFW_CONTEXT_VERSION_MINOR,
+                                            ),
+
+                    'rgba_bits' :           (
+                                                api.GLFW_RED_BITS,
+                                                api.GLFW_GREEN_BITS,
+                                                api.GLFW_BLUE_BITS,
+                                                api.GLFW_ALPHA_BITS,
+                                            ),
+
+                    'rgba_accum_bits' :     (
+                                                api.GLFW_ACCUM_RED_BITS,
+                                                api.GLFW_ACCUM_GREEN_BITS,
+                                                api.GLFW_ACCUM_BLUE_BITS,
+                                                api.GLFW_ACCUM_ALPHA_BITS,
+                                            ),
+                }
+
+    def __init__(self, **kwargs):
+        self._hints = {}
+
+        for k,v in kwargs.items():
+            if k in self.__class__._hint_map_ or k in self.__class__._over_map_:
+                setattr(self, k, v)
+
+    def __getitem__(self, index):
+        if index in self.__class__._hint_map_.values():
+            return self._hints.get(index, None)
+        else:
+            raise TypeError()
+
+    def __setitem__(self, index, value):
+        if index in self.__class__._hint_map_.values():
+            if value is None:
+                if index in self._hints:
+                    del self._hints[index]
+            elif isinstance(value, int):
+                self._hints[index] = value
+        else:
+            raise TypeError()
+
+    def __delitem__(self, index):
+        if index in self.__class__._hint_map_.values():
+            if index in self._hints:
+                del self._hints[index]
+        else:
+            raise TypeError()
+
+
+    def __call__(self, no_defaults=False):
+        if not self._hints or not no_defaults:
+            api.glfwDefaultWindowHints()
+
+        for hint, value in self._hints.items():
+            api.glfwWindowHint(hint, value)
+
+
+def _hntprops_(hint_map, over_map):
+    prop_map = {}
+
+    def _hint_property(hint):
+        def _get(self):
+            return self[hint]
+        def _set(self, value):
+            self[hint] = value
+        def _del(self):
+            del self[hint]
+
+        return property(_get, _set, _del)
+
+    for prop, hint in hint_map.items():
+        prop_map[prop] = _hint_property(hint)
+
+    def _over_property(over):
+        def _get(self):
+            value = [ self[hint] for hint in over ]
+            return tuple(value)
+        def _set(self, value):
+            for hint, v in zip(over, value):
+                self[hint] = v
+        def _del(self):
+            for hint in over:
+                del self[hint]
+
+        return property(_get, _set, _del)
+
+    for prop, over in over_map.items():
+        prop_map[prop] = _over_property(over)
+
+    return prop_map
+
+WindowHints = type('WindowHints', (_WindowHintsBase,), _hntprops_(_WindowHintsBase._hint_map_, _WindowHintsBase._over_map_))
+
+
+
 class glfw(object):
     def __init__(self):
         raise TypeError("Objects of this class cannot be created")
@@ -378,8 +546,18 @@ class glfw(object):
 if __name__ == '__main__':
     glfw.init()
 
+    whints = WindowHints(opengl_profile=Window.CORE_PROFILE, context_version=(3,2))
+    whints()
+
     w = Window(800, 600, glfw.api_version)
     w.make_current()
+
+    print(w.context_version)
+    print(w.debug_context, w.forward_compat)
+    print(w.client_api == Window.OPENGL_API)
+    print(w.context_robustness == Window.NO_RESET_NOTIFICATION)
+    print(w.opengl_profile == Window.ANY_PROFILE)
+
     k = w.keys
 
     while not w.should_close:
