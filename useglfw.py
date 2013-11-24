@@ -3,19 +3,19 @@
 import sys
 
 if sys.version_info.major < 3:
-    unistr = unicode
+    _unistr = unicode
 else:
-    unistr = str
+    _unistr = str
 
 import threading
 
-local = threading.local()
-local.error = None
+_local = threading.local()
+_local.error = None
 
 def _error_check(func):
     def wrap(*args, **kwargs):
         result = func(*args, **kwargs)
-        err, local.error = local.error, None
+        err, _local.error = _local.error, None
         if err:
             raise err
         return result
@@ -23,8 +23,8 @@ def _error_check(func):
 
 import libglfw as api
 
-for name in api.all_functions:
-    setattr(api, name, _error_check(getattr(api, name)))
+for _name in api.all_functions:
+    setattr(api, _name, _error_check(getattr(api, _name)))
 
 class NotInitializedError(Exception): pass
 class NoCurrentContextError(Exception): pass
@@ -50,14 +50,14 @@ _error_map = {
 
 @api.GLFWerrorfun
 def _error_raise(code, message):
-    if str is unistr:
+    if str is _unistr:
         message = message.decode()
-    local.error = _error_map.get(code, RuntimeError)(message)
+    _local.error = _error_map.get(code, RuntimeError)(message)
 
 api.glfwSetErrorCallback(_error_raise)
 
 def _utf(obj):
-    if isinstance(obj, unistr):
+    if isinstance(obj, _unistr):
         obj = obj.encode()
     return obj
 
@@ -163,6 +163,7 @@ class Joystick(object):
 
 class Window(object):
     _instance_ = {}
+    _contexts_ = []
 
     def __init__(self, width, height, title, monitor=None, shared=None):
         self.handle = api.glfwCreateWindow(width, height, _utf(title), monitor, shared).get_void_p()
@@ -170,6 +171,16 @@ class Window(object):
 
         self.mice = Mice(self.handle)
         self.keys = Keys(self.handle)
+
+    def __enter__(self):
+        api.glfwMakeContextCurrent(self.handle)
+        self.__class__._contexts_ += [ self ]
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        _ctx = self.__class__._contexts_ and self.__class__._contexts_.pop().handle
+        api.glfwMakeContextCurrent(_ctx)
+        return False
 
     def make_current(self):
         api.glfwMakeContextCurrent(self.handle)
@@ -339,25 +350,6 @@ class Window(object):
             func(window, *args, **kwargs)
         return functype(wrap)
 
-
-
-def init():
-    return bool(api.glfwInit())
-
-def terminate():
-    api.glfwTerminate()
-
-def api_version():
-    return api.glfwGetVersion()
-
-def api_version_string():
-    return _str(api.glfwGetVersionString())
-
-def poll_events():
-    api.glfwPollEvents()
-
-def wait_events():
-    api.glfwWaitEvents()
 
 class glfw(object):
     def __init__(self):
