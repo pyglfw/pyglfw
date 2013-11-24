@@ -319,6 +319,17 @@ class Window(object):
     def context_robustness(self):
         return api.glfwGetWindowAttrib(self.handle, api.GLFW_CONTEXT_ROBUSTNESS)
 
+    @staticmethod
+    def hint(hints=None, no_defaults=False, **kwargs):
+        if not hints:
+            hints = Hints(**kwargs)
+
+        if not hints._hints or not no_defaults:
+            api.glfwDefaultWindowHints()
+
+        for hint, value in hints._hints.items():
+            api.glfwWindowHint(hint, value)
+
     @property
     def monitor(self):
         mon_handle = api.glfwGetWindowMonitor(self.handle)
@@ -391,7 +402,7 @@ class Window(object):
         return functype(wrap)
 
 
-class _WindowHintsBase(object):
+class _HintsBase(object):
     _hint_map_ = {
                     'resizable' :           api.GLFW_RESIZABLE,
                     'visible' :             api.GLFW_VISIBLE,
@@ -473,14 +484,6 @@ class _WindowHintsBase(object):
             raise TypeError()
 
 
-    def __call__(self, no_defaults=False):
-        if not self._hints or not no_defaults:
-            api.glfwDefaultWindowHints()
-
-        for hint, value in self._hints.items():
-            api.glfwWindowHint(hint, value)
-
-
 def _hntprops_(hint_map, over_map):
     prop_map = {}
 
@@ -515,7 +518,8 @@ def _hntprops_(hint_map, over_map):
 
     return prop_map
 
-WindowHints = type('WindowHints', (_WindowHintsBase,), _hntprops_(_WindowHintsBase._hint_map_, _WindowHintsBase._over_map_))
+
+Hints = type('Hints', (_HintsBase,), _hntprops_(_HintsBase._hint_map_, _HintsBase._over_map_))
 
 
 
@@ -546,8 +550,8 @@ class glfw(object):
 if __name__ == '__main__':
     glfw.init()
 
-    whints = WindowHints(opengl_profile=Window.CORE_PROFILE, context_version=(3,2))
-    whints()
+    whints = Hints(opengl_profile=Window.CORE_PROFILE, context_version=(3,2))
+    Window.hint(whints)
 
     w = Window(800, 600, glfw.api_version)
     w.make_current()
