@@ -6,6 +6,7 @@ if sys.version_info.major < 3:
     _unistr = unicode
 else:
     _unistr = str
+    xrange = range
 
 import threading
 
@@ -84,7 +85,7 @@ class Mice(object):
 
             return bool(api.glfwGetMouseButton(self.handle, index))
         elif isinstance(index, slice):
-            return [ self[i] for i in range(*index.indices(self.ntotal)) ]
+            return [ self[i] for i in xrange(*index.indices(self.ntotal)) ]
         else:
             raise TypeError("Index %i is not supported" % index)
 
