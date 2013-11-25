@@ -5,11 +5,7 @@ from math import *
 
 class Render(object):
     def __init__(self, viewport):
-        glMatrixMode(GL_PROJECTION)
-        glLoadIdentity()
-        glOrtho(0.0, viewport[0], viewport[1], 0.0, -1, 1)
-        glMatrixMode(GL_MODELVIEW)
-        glLoadIdentity()
+        glViewport(0, 0, viewport[0], viewport[1])
         glDisable(GL_DEPTH_TEST)
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
@@ -27,30 +23,30 @@ class Render(object):
 
 
 class Domain(object):
-    def __init__(self, area):
-        self.cnt_x = area[0] / 2
-        self.cnt_y = area[1] / 2
+    def __init__(self):
+        self.cnt_x = 0
+        self.cnt_y = 0
 
-        self.pos_x = self.cnt_x
-        self.pos_y = self.cnt_y
+        self.pos_x = 0
+        self.pos_y = 0
 
     def left(self):
-        self.pos_x -= 10
+        self.pos_x -= 0.01
 
     def right(self):
-        self.pos_x += 10
-
-    def up(self):
-        self.pos_y -= 10
+        self.pos_x += 0.01
 
     def down(self):
-        self.pos_y += 10
+        self.pos_y -= 0.01
+
+    def up(self):
+        self.pos_y += 0.01
 
     @property
     def object(self):
         head0 = (self.pos_x, self.pos_y)
-        wing1 = (self.pos_x + 30, self.pos_y - 30)
-        wing2 = (self.pos_x - 30, self.pos_y - 30)
+        wing1 = (self.pos_x + 0.03, self.pos_y - 0.03)
+        wing2 = (self.pos_x - 0.03, self.pos_y - 0.03)
 
         return [ head0, wing1, wing2 ]
 
@@ -61,8 +57,8 @@ class Domain(object):
     @pos.setter
     def pos(self, x_y):
         x, y = x_y
-        self.pos_x = self.cnt_x * (1 + x)
-        self.pos_y = self.cnt_y * (1 - y)
+        self.pos_x = self.cnt_x + x
+        self.pos_y = self.cnt_y + y
 
 if __name__ == '__main__':
 
@@ -78,7 +74,7 @@ if __name__ == '__main__':
     with win:
         render = Render(win.fbsize)
 
-    dom = Domain(vm[0:2])
+    dom = Domain()
 
     while not win.should_close:
         glfw.poll_events()
