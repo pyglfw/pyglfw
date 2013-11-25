@@ -5,21 +5,43 @@ from math import *
 
 class Render(object):
     def __init__(self, viewport):
-        glViewport(0, 0, viewport[0], viewport[1])
         glDisable(GL_DEPTH_TEST)
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
-    def __call__(self, object):
+    def __call__(self, *args):
         glClearColor(0.0, 0.0, 0.0, 0.0)
         glClear(GL_COLOR_BUFFER_BIT)
 
-        glBegin(GL_TRIANGLES)
+        for _obj in args:
+            _obj()
 
-        for pt in object:
-            glVertex2f(*pt)
+    def triangle(self, center, length=0.1):
+        def draw():
+            glBegin(GL_TRIANGLES)
 
-        glEnd()
+            glVertex2f(center[0], center[1])
+            glVertex2f(center[0] - length, center[1] + length)
+            glVertex2f(center[0] + length, center[1] + length)
+
+            glEnd()
+
+        return draw
+
+
+    def quad(self, center, length=0.1):
+        def draw():
+            glBegin(GL_QUADS)
+
+            glVertex2f(center[0] - length, center[1] - length)
+            glVertex2f(center[0] - length, center[1] + length)
+            glVertex2f(center[0] + length, center[1] + length)
+            glVertex2f(center[0] + length, center[1] - length)
+
+            glEnd()
+
+
+        return draw
 
 
 class Domain(object):
@@ -30,25 +52,23 @@ class Domain(object):
         self.pos_x = 0
         self.pos_y = 0
 
+        self.delta = 0.01
+
     def left(self):
-        self.pos_x -= 0.01
+        self.pos_x -= self.delta
 
     def right(self):
-        self.pos_x += 0.01
+        self.pos_x += self.delta
 
     def down(self):
-        self.pos_y -= 0.01
+        self.pos_y -= self.delta
 
     def up(self):
-        self.pos_y += 0.01
+        self.pos_y += self.delta
 
     @property
-    def object(self):
-        head0 = (self.pos_x, self.pos_y)
-        wing1 = (self.pos_x + 0.03, self.pos_y - 0.03)
-        wing2 = (self.pos_x - 0.03, self.pos_y - 0.03)
-
-        return [ head0, wing1, wing2 ]
+    def points(self):
+        return [ (self.pos_x, self.pos_y) ]
 
     @property
     def pos(self):
@@ -59,6 +79,8 @@ class Domain(object):
         x, y = x_y
         self.pos_x = self.cnt_x + x
         self.pos_y = self.cnt_y + y
+
+
 
 if __name__ == '__main__':
 
@@ -82,22 +104,23 @@ if __name__ == '__main__':
         if win.keys.escape:
             win.should_close = True
 
-#        if win.keys.left or jst.axes[0] == -1:
-#            dom.left()
-#
-#        if win.keys.right or jst.axes[0] == +1:
-#            dom.right()
-#
-#        if win.keys.up or jst.axes[1] == +1:
-#            dom.up()
-#
-#        if win.keys.down or jst.axes[1] == -1:
-#            dom.down()
+        if win.keys.left or jst.axes[0] == -1:
+            dom.left()
 
-        dom.pos = jst.axes[0], jst.axes[1]
+        if win.keys.right or jst.axes[0] == +1:
+            dom.right()
+
+        if win.keys.up or jst.axes[1] == +1:
+            dom.up()
+
+        if win.keys.down or jst.axes[1] == -1:
+            dom.down()
+
+#        dom.pos = jst.axes[0], jst.axes[1]
 
         with win:
-            render(dom.object)
+            drawes = [ render.quad(p) for p in dom.points ]
+            render(*drawes)
 
         win.swap_buffers()
 
