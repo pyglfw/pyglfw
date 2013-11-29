@@ -52,23 +52,13 @@ class Domain(object):
         self.pos_x = 0
         self.pos_y = 0
 
-        self.delta = 0.01
-
-    def left(self):
-        self.pos_x -= self.delta
-
-    def right(self):
-        self.pos_x += self.delta
-
-    def down(self):
-        self.pos_y -= self.delta
-
-    def up(self):
-        self.pos_y += self.delta
-
     @property
     def points(self):
         return [ (self.pos_x, self.pos_y) ]
+
+    def mov(self, vel_x, vel_y):
+        self.pos_x += vel_x
+        self.pos_y += vel_y
 
     @property
     def pos(self):
@@ -104,17 +94,10 @@ if __name__ == '__main__':
         if win.keys.escape:
             win.should_close = True
 
-        if win.keys.left or jst.axes[0] == -1:
-            dom.left()
+        mov_x = round(jst.axes[0], 2) and jst.axes[0] or (float(win.keys.right) - float(win.keys.left))
+        mov_y = round(jst.axes[1], 2) and jst.axes[1] or (float(win.keys.up) - float(win.keys.down))
 
-        if win.keys.right or jst.axes[0] == +1:
-            dom.right()
-
-        if win.keys.up or jst.axes[1] == +1:
-            dom.up()
-
-        if win.keys.down or jst.axes[1] == -1:
-            dom.down()
+        dom.mov(mov_x * 0.01, mov_y * 0.01)
 
 #        dom.pos = jst.axes[0], jst.axes[1]
 
