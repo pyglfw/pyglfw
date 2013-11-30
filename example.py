@@ -25,7 +25,7 @@ class CallbackWindow(Window):
         print("keybrd: key=%s scancode=%s action=%s mods=%s" % (key, scancode, action, mods))
 
     def char_callback(self, char):
-        print("unichr: char=%s" % chr(char))
+        print("unichr: char=%s" % char)
 
     def scroll_callback(self, off_x, off_y):
         print("scroll: x=%s y=%s" % (off_x, off_y))
