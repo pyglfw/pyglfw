@@ -727,7 +727,7 @@ if __name__ == '__main__':
     for cver in [ (3,3), (3,2), (3,1), (3,0) ]:
         try:
             Window.hint(context_version=cver)
-            w = Window(800, 600, glfw.api_version)
+            w = Window(800, 600, "Тест: %s" % glfw.api_version)
             break
         except:
             continue
