@@ -244,6 +244,21 @@ class Window(object):
         self.mice = Mice(self.handle)
         self.keys = Keys(self.handle)
 
+        self._key_callback = None
+        self._char_callback = None
+        self._scroll_callback = None
+        self._cursor_enter_callback = None
+        self._cursor_pos_callback = None
+        self._mouse_button_callback = None
+
+        self._window_pos_callback = None
+        self._window_size_callback = None
+        self._window_close_callback = None
+        self._window_refresh_callback = None
+        self._window_focus_callback = None
+        self._window_iconify_callback = None
+        self._framebuffer_size_callback = None
+
     def __enter__(self):
         api.glfwMakeContextCurrent(self.handle)
         self.__class__._contexts_ += [ self ]
@@ -468,7 +483,6 @@ class Window(object):
     def cursor_pos(self, x_y):
         api.glfwSetCursorPos(self.handle, *x_y)
 
-
     @classmethod
     def _callback(cls, functype, func):
         if not func:
@@ -477,6 +491,81 @@ class Window(object):
             window = cls._instance_.get(handle.get_void_p().value, None)
             func(window, *args, **kwargs)
         return functype(wrap)
+
+    def set_key_callback(self, callback):
+        self._key_callback = self._callback(api.GLFWkeyfun, callback)
+        api.glfwSetKeyCallback(self.handle, self._key_callback)
+
+    def set_char_callback(self, callback):
+        self._char_callback = self._callback(api.GLFWcharfun, callback)
+        api.glfwSetCharCallback(self.handle, self._char_callback)
+
+    def set_scroll_callback(self, callback):
+        self._scroll_callback = self._callback(api.GLFWscrollfun, callback)
+        api.glfwSetScrollCallback(self.handle, self._scroll_callback)
+
+    def set_cursor_enter_callback(self, callback):
+        self._cursor_enter_callback = self._callback(api.GLFWcursorenterfun, callback)
+        api.glfwSetCursorEnterCallback(self.handle, self._cursor_enter_callback)
+
+    def set_cursor_pos_callback(self, callback):
+        self._cursor_pos_callback = self._callback(api.GLFWcursorposfun, callback)
+        api.glfwSetCursorPosCallback(self.handle, self._cursor_pos_callback)
+
+    def set_mouse_button_callback(self, callback):
+        self._mouse_button_callback = self._callback(api.GLFWmousebuttonfun, callback)
+        api.glfwSetMouseButtonCallback(self.handle, self._mouse_button_callback)
+
+    def set_window_pos_callback(self, callback):
+        self._window_pos_callback = self._callback(api.GLFWwindowposfun, callback)
+        api.glfwSetWindowPosCallback(self.handle, self._window_pos_callback)
+
+    def set_window_size_callback(self, callback):
+        self._window_size_callback = self._callback(api.GLFWwindowsizefun, callback)
+        api.glfwSetWindowSizeCallback(self.handle, self._window_size_callback)
+
+    def set_window_close_callback(self, callback):
+        self._window_close_callback = self._callback(api.GLFWwindowclosefun, callback)
+        api.glfwSetWindowCloseCallback(self.handle, self._window_close_callback)
+
+    def set_window_refresh_callback(self, callback):
+        self._window_refresh_callback = self._callback(api.GLFWwindowrefreshfun, callback)
+        api.glfwSetWindowRefreshCallback(self.handle, self._window_refresh_callback)
+
+    def set_window_focus_callback(self, callback):
+        self._window_focus_callback = self._callback(api.GLFWwindowfocusfun, callback)
+        api.glfwSetWindowFocusCallback(self.handle, self._window_focus_callback)
+
+    def set_window_iconify_callback(self, callback):
+        self._window_iconify_callback = self._callback(api.GLFWwindowiconifyfun, callback)
+        api.glfwSetWindowIconifyCallback(self.handle, self._window_iconify_callback)
+
+    def set_framebuffer_size_callback(self, callback):
+        self._framebuffer_size_callback = self._callback(api.GLFWframebuffersizefun, callback)
+        api.glfwSetFramebufferSizeCallback(self.handle, self._framebuffer_size_callback)
+
+
+class _Window(Window):
+
+    # input callbacks
+    key_fun             = None
+    char_fun            = None
+    scroll_fun          = None
+    cursor_enter_fun    = None
+    cursor_pos_fun      = None
+    mouse_button_fun    = None
+
+    # event callbacks
+    window_pos_fun      = None
+    window_size_fun     = None
+    window_close_fun    = None
+    window_refresh_fun  = None
+    window_focus_fun    = None
+    window_iconity_fun  = None
+    framebuffer_size_fun= None
+
+    def __init__(self, *args, **kwargs):
+        pass
 
 
 class _HintsBase(object):
