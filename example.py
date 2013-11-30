@@ -5,7 +5,7 @@ from useglfw import glfw, Window, Keys, Mice
 
 class CallbackWindow(Window):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super(CallbackWindow, self).__init__(*args, **kwargs)
 
         self.set_key_callback(CallbackWindow.key_callback)
         self.set_char_callback(CallbackWindow.char_callback)
