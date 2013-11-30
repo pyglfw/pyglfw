@@ -94,8 +94,8 @@ if __name__ == '__main__':
         if win.keys.escape:
             win.should_close = True
 
-        mov_x = round(jst.axes[0], 2) and jst.axes[0] or (float(win.keys.right) - float(win.keys.left))
-        mov_y = round(jst.axes[1], 2) and jst.axes[1] or (float(win.keys.up) - float(win.keys.down))
+        mov_x = jst and round(jst.axes[0], 2) and jst.axes[0] or (float(win.keys.right) - float(win.keys.left))
+        mov_y = jst and round(jst.axes[1], 2) and jst.axes[1] or (float(win.keys.up) - float(win.keys.down))
 
         dom.mov(mov_x * 0.01, mov_y * 0.01)
 
