@@ -724,9 +724,14 @@ class glfw(object):
 if __name__ == '__main__':
     glfw.init()
 
-    Window.hint(context_version=(3,2))
+    for cver in [ (3,3), (3,2), (3,1), (3,0) ]:
+        try:
+            Window.hint(context_version=cver)
+            w = Window(800, 600, glfw.api_version)
+            break
+        except:
+            continue
 
-    w = Window(800, 600, glfw.api_version)
     w.make_current()
 
     print(w.context_version)
@@ -741,3 +746,4 @@ if __name__ == '__main__':
             w.should_close = True
 
     glfw.terminate()
+
