@@ -5,7 +5,7 @@ from ctypes import addressof, cast, py_object, CFUNCTYPE, POINTER, Structure
 
 import sys
 
-from ctypes import cdll as dll
+from ctypes import cdll
 
 c_void = None
 c_func = CFUNCTYPE
@@ -245,8 +245,12 @@ class _DeclareFunction(object):
 
         self.dir[name] = func
 
+if sys.platform == 'win32':
+    lib = cdll.glfw3
+else:
+    lib = cdll.LoadLibrary('libglfw.so.3')
 
-_declare = _DeclareFunction(dll.glfw3, c_func)
+_declare = _DeclareFunction(lib, c_func)
 
 # ---- ret/arg helper functions ----
 
