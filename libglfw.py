@@ -483,6 +483,18 @@ if __name__ == '__main__':
     def show_error(code, message):
         print(code, message)
 
+    def _utf(obj):
+        if bytes is str:
+            return obj
+        else:
+            return obj.encode()
+
+    def _str(obj):
+        if bytes is str:
+            return obj
+        else:
+            return obj.decode()
+
     ShowError = GLFWerrorfun(show_error)
     glfwSetErrorCallback(ShowError)
 
@@ -505,7 +517,7 @@ if __name__ == '__main__':
     gammar = glfwGetGammaRamp(monitors[0])
     glfwSetGammaRamp(monitors[0], gammar)
 
-    window = glfwCreateWindow(800, 600, "Привет, Мир!".encode(), None, None)
+    window = glfwCreateWindow(800, 600, _utf("Привет, Мир!"), None, None)
     #window = glfwCreateWindow(bestmode[0], bestmode[1], "Привет, Мир!", monitor, None)
     if not window:
         glfwTerminate()
@@ -513,8 +525,8 @@ if __name__ == '__main__':
 
     glfwMakeContextCurrent(window)
 
-    glfwSetClipboardString(window, "Тест".encode())
-    print(glfwGetClipboardString(window).decode())
+    glfwSetClipboardString(window, _utf("Тест"))
+    print(_str(glfwGetClipboardString(window)))
 
     glfwSwapInterval(1)
 
