@@ -257,7 +257,7 @@ _declare = _DeclareFunction(lib, c_func)
 class object_p(c_void_p):
     @classmethod
     def from_param(cls, obj):
-        return id(obj)
+        return c_void_p(id(obj))
 
 def ret_object(obj, func, args):
     return cast(obj, py_object).value
