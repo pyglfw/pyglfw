@@ -1,12 +1,22 @@
 # coding=utf-8
 
-import sys
-
-if sys.version_info.major < 3:
+if bytes is str:
     _unistr = unicode
+    _unichr = unichr
 else:
     _unistr = str
+    _unichr = chr
     xrange = range
+
+def _utf(obj):
+    if isinstance(obj, _unistr):
+        obj = obj.encode()
+    return obj
+
+def _str(obj):
+    if isinstance(obj, bytes) and not isinstance(obj, str):
+        obj = obj.decode()
+    return obj
 
 import threading
 
@@ -56,16 +66,6 @@ def _error_raise(code, message):
     _local.error = _error_map.get(code, RuntimeError)(message)
 
 api.glfwSetErrorCallback(_error_raise)
-
-def _utf(obj):
-    if isinstance(obj, _unistr):
-        obj = obj.encode()
-    return obj
-
-def _str(obj):
-    if isinstance(obj, bytes) and not isinstance(obj, str):
-        obj = obj.decode()
-    return obj
 
 
 class Mice(object):
@@ -302,7 +302,7 @@ class Window(object):
         api.glfwSetWindowTitle(self.handle, title)
 
     @property
-    def fbsize(self):
+    def framebuffer_size(self):
         return api.glfwGetFramebufferSize(self.handle)
 
     @property
@@ -474,7 +474,6 @@ class Window(object):
     def sticky_mice(self, flag):
         api.glfwSetInputMode(self.handle, api.GLFW_STICKY_MOUSE_BUTTONS, flag)
 
-
     @property
     def cursor_pos(self):
         return api.glfwGetCursorPos(self.handle)
@@ -482,6 +481,15 @@ class Window(object):
     @cursor_pos.setter
     def cursor_pos(self, x_y):
         api.glfwSetCursorPos(self.handle, *x_y)
+
+    PRESS = api.GLFW_PRESS
+    RELEASE = api.GLFW_RELEASE
+    REPEAT = api.GLFW_REPEAT
+
+    MOD_SHIFT = api.GLFW_MOD_SHIFT
+    MOD_CONTROL = api.GLFW_MOD_CONTROL
+    MOD_ALT = api.GLFW_MOD_ALT
+    MOD_SUPER = api.GLFW_MOD_SUPER
 
     @classmethod
     def _callback(cls, functype, func):
@@ -497,7 +505,10 @@ class Window(object):
         api.glfwSetKeyCallback(self.handle, self._key_callback)
 
     def set_char_callback(self, callback):
-        self._char_callback = self._callback(api.GLFWcharfun, callback)
+        def wrap(self, char):
+            char = _unichr(char)
+            callback(self, char)
+        self._char_callback = self._callback(api.GLFWcharfun, wrap)
         api.glfwSetCharCallback(self.handle, self._char_callback)
 
     def set_scroll_callback(self, callback):
