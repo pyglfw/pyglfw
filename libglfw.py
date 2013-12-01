@@ -12,6 +12,10 @@ c_func = CFUNCTYPE
 
 # ---- constant definitions ----
 
+GLFW_RELEASE                = 0
+GLFW_PRESS                  = 1
+GLFW_REPEAT                 = 2
+
 GLFW_NOT_INITIALIZED        = 0x00010001
 GLFW_NO_CURRENT_CONTEXT     = 0x00010002
 GLFW_INVALID_ENUM           = 0x00010003
@@ -72,6 +76,9 @@ GLFW_CURSOR_NORMAL          = 0x00034001
 GLFW_CURSOR_HIDDEN          = 0x00034002
 GLFW_CURSOR_DISABLED        = 0x00034003
 
+GLFW_CONNECTED              = 0x00040001
+GLFW_DISCONNECTED           = 0x00040002
+
 GLFW_MOUSE_BUTTON_1         = 0
 GLFW_MOUSE_BUTTON_2         = 1
 GLFW_MOUSE_BUTTON_3         = 2
@@ -84,6 +91,24 @@ GLFW_MOUSE_BUTTON_LAST      = GLFW_MOUSE_BUTTON_8
 GLFW_MOUSE_BUTTON_LEFT      = GLFW_MOUSE_BUTTON_1
 GLFW_MOUSE_BUTTON_RIGHT     = GLFW_MOUSE_BUTTON_2
 GLFW_MOUSE_BUTTON_MIDDLE    = GLFW_MOUSE_BUTTON_3
+
+GLFW_JOYSTICK_1             = 0
+GLFW_JOYSTICK_2             = 1
+GLFW_JOYSTICK_3             = 2
+GLFW_JOYSTICK_4             = 3
+GLFW_JOYSTICK_5             = 4
+GLFW_JOYSTICK_6             = 5
+GLFW_JOYSTICK_7             = 6
+GLFW_JOYSTICK_8             = 7
+GLFW_JOYSTICK_9             = 8
+GLFW_JOYSTICK_10            = 9
+GLFW_JOYSTICK_11            = 10
+GLFW_JOYSTICK_12            = 11
+GLFW_JOYSTICK_13            = 12
+GLFW_JOYSTICK_14            = 13
+GLFW_JOYSTICK_15            = 14
+GLFW_JOYSTICK_16            = 15
+GLFW_JOYSTICK_LAST          = GLFW_JOYSTICK_16
 
 GLFW_KEY_UNKNOWN            = -1
 
@@ -210,9 +235,10 @@ GLFW_KEY_RIGHT_SUPER        = 347
 GLFW_KEY_MENU               = 348
 GLFW_KEY_LAST               = GLFW_KEY_MENU
 
-GLFW_CONNECTED              = 0x00040001
-GLFW_DISCONNECTED           = 0x00040002
-
+GLFW_MOD_SHIFT              = 0x0001
+GLFW_MOD_CONTROL            = 0x0002
+GLFW_MOD_ALT                = 0x0004
+GLFW_MOD_SUPER              = 0x0008
 
 # ---- definition helper factory ----
 
