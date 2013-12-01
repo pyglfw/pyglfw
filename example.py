@@ -7,18 +7,18 @@ class CallbackWindow(Window):
     def __init__(self, *args, **kwargs):
         super(CallbackWindow, self).__init__(*args, **kwargs)
 
-        self.set_key_callback(CallbackWindow.key_callback)
-        self.set_char_callback(CallbackWindow.char_callback)
+        #self.set_key_callback(CallbackWindow.key_callback)
+        #self.set_char_callback(CallbackWindow.char_callback)
         #self.set_scroll_callback(CallbackWindow.scroll_callback)
         #self.set_mouse_button_callback(CallbackWindow.mouse_button_callback)
-        #self.set_cursor_enter_callback(CallbackWindow.cursor_enter_callback)
+        self.set_cursor_enter_callback(CallbackWindow.cursor_enter_callback)
         #self.set_cursor_pos_callback(CallbackWindow.cursor_pos_callback)
         #self.set_window_size_callback(CallbackWindow.window_size_callback)
         #self.set_window_pos_callback(CallbackWindow.window_pos_callback)
         #self.set_window_close_callback(CallbackWindow.window_close_callback)
         #self.set_window_refresh_callback(CallbackWindow.window_refresh_callback)
-        #self.set_window_focus_callback(CallbackWindow.window_focus_callback)
-        #self.set_window_iconify_callback(CallbackWindow.window_iconify_callback)
+        self.set_window_focus_callback(CallbackWindow.window_focus_callback)
+        self.set_window_iconify_callback(CallbackWindow.window_iconify_callback)
         #self.set_framebuffer_size_callback(CallbackWindow.framebuffer_size_callback)
 
     def key_callback(self, key, scancode, action, mods):
@@ -52,10 +52,10 @@ class CallbackWindow(Window):
         print("redraw")
 
     def window_focus_callback(self, status):
-        print("active: %s" % status)
+        print("active: status=%s" % status)
 
     def window_iconify_callback(self, status):
-        print("hidden: %s" % status)
+        print("hidden: status=%s" % status)
 
     def framebuffer_size_callback(self, fbs_x, fbs_y):
         print("buffer: x=%s y=%s" % (fbs_x, fbs_y))

@@ -516,7 +516,10 @@ class Window(object):
         api.glfwSetScrollCallback(self.handle, self._scroll_callback)
 
     def set_cursor_enter_callback(self, callback):
-        self._cursor_enter_callback = self._callback(api.GLFWcursorenterfun, callback)
+        def wrap(self, flag):
+            flag = bool(flag)
+            callback(self, flag)
+        self._cursor_enter_callback = self._callback(api.GLFWcursorenterfun, wrap)
         api.glfwSetCursorEnterCallback(self.handle, self._cursor_enter_callback)
 
     def set_cursor_pos_callback(self, callback):
@@ -544,11 +547,17 @@ class Window(object):
         api.glfwSetWindowRefreshCallback(self.handle, self._window_refresh_callback)
 
     def set_window_focus_callback(self, callback):
-        self._window_focus_callback = self._callback(api.GLFWwindowfocusfun, callback)
+        def wrap(self, flag):
+            flag = bool(flag)
+            callback(self, flag)
+        self._window_focus_callback = self._callback(api.GLFWwindowfocusfun, wrap)
         api.glfwSetWindowFocusCallback(self.handle, self._window_focus_callback)
 
     def set_window_iconify_callback(self, callback):
-        self._window_iconify_callback = self._callback(api.GLFWwindowiconifyfun, callback)
+        def wrap(self, flag):
+            flag = bool(flag)
+            callback(self, flag)
+        self._window_iconify_callback = self._callback(api.GLFWwindowiconifyfun, wrap)
         api.glfwSetWindowIconifyCallback(self.handle, self._window_iconify_callback)
 
     def set_framebuffer_size_callback(self, callback):
