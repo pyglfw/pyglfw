@@ -180,13 +180,13 @@ class Monitor(object):
         return not (self == other)
 
     @staticmethod
-    def set_monitor_callback(callback):
+    def set_callback(callback):
         if not callback:
             Monitor._callback_ = None
         else:
             def wrap(handle, *args, **kwargs):
                 callback(_monitor_obj(handle), *args, **kwargs)
-            Monitor._callback = wrap
+            Monitor._callback_ = api.GLFWmonitorfun(wrap)
         api.glfwSetMonitorCallback(Monitor._callback_)
 
     def __init__(self):

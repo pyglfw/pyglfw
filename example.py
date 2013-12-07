@@ -1,6 +1,6 @@
 
 import libglfw as api
-from useglfw import glfw, Window, Keys, Mice
+from useglfw import glfw, Window, Keys, Mice, Monitor, get_monitors
 
 
 class CallbackWindow(Window):
@@ -60,9 +60,14 @@ class CallbackWindow(Window):
     def framebuffer_size_callback(self, fbs_x, fbs_y):
         print("buffer: x=%s y=%s" % (fbs_x, fbs_y))
 
+def on_monitor(_monitor, _event):
+    change = { Monitor.CONNECTED : '+', Monitor.DISCONNECTED : '-' }.get(_event, '~')
+    print("screen: %s %s" % (change, _monitor.name))
 
 def main():
     glfw.init()
+
+    Monitor.set_callback(on_monitor)
 
     win = CallbackWindow(800, 600, "callback window")
     win.make_current()
