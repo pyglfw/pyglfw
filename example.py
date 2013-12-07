@@ -1,9 +1,10 @@
+# coding=utf-8
 
 import libglfw as api
-from useglfw import glfw, Window, Keys, Mice, Monitor, get_monitors
+import useglfw as fw
 
 
-class CallbackWindow(Window):
+class CallbackWindow(fw.Window):
     def __init__(self, *args, **kwargs):
         super(CallbackWindow, self).__init__(*args, **kwargs)
 
@@ -61,13 +62,13 @@ class CallbackWindow(Window):
         print("buffer: x=%s y=%s" % (fbs_x, fbs_y))
 
 def on_monitor(_monitor, _event):
-    change = { Monitor.CONNECTED : '+', Monitor.DISCONNECTED : '-' }.get(_event, '~')
+    change = { fw.Monitor.CONNECTED : '+', fw.Monitor.DISCONNECTED : '-' }.get(_event, '~')
     print("screen: %s %s" % (change, _monitor.name))
 
 def main():
-    glfw.init()
+    fw.init()
 
-    Monitor.set_callback(on_monitor)
+    fw.Monitor.set_callback(on_monitor)
 
     win = CallbackWindow(800, 600, "callback window")
     win.make_current()
@@ -75,12 +76,12 @@ def main():
     while not win.should_close:
 
         win.swap_buffers()
-        glfw.poll_events()
+        fw.poll_events()
 
         if win.keys.escape:
             win.should_close = True
 
-    glfw.terminate()
+    fw.terminate()
 
 if __name__ == '__main__':
     main()

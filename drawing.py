@@ -1,5 +1,7 @@
+# coding=utf-8
 
-from useglfw import glfw, Window, Keys, Mice, Joystick, Monitor, get_primary_monitor
+import useglfw as glfw
+
 from OpenGL.GL import *
 from math import *
 
@@ -71,25 +73,25 @@ class Domain(object):
         self.pos_y = self.cnt_y + y
 
 def on_key(window, key, scancode, action, mods):
-    if action == Window.PRESS and key == Keys.ESCAPE:
+    if action == glfw.Window.PRESS and key == glfw.Keys.ESCAPE:
         window.should_close = True
 
 if __name__ == '__main__':
 
     glfw.init()
 
-    pm = get_primary_monitor()
+    pm = glfw.get_primary_monitor()
 
     vm = pm.video_modes[-1]
 
-    win = Window(vm[0], vm[1], "nayadra", pm)
+    win = glfw.Window(vm[0], vm[1], "nayadra", pm)
     win.swap_interval(0)
     win.set_key_callback(on_key)
 
     if not win.monitor == pm:
         raise Exception("Wrong monitor set!")
 
-    jst = Joystick(0)
+    jst = glfw.Joystick(0)
 
     with win:
         render = Render(win.framebuffer_size)
@@ -99,8 +101,8 @@ if __name__ == '__main__':
     while not win.should_close:
         glfw.poll_events()
         
-        mov_x = jst and round(jst.axes[0], 2) and jst.axes[0] or (float(win.keys.right) - float(win.keys.left))
-        mov_y = jst and round(jst.axes[1], 2) and jst.axes[1] or (float(win.keys.up) - float(win.keys.down))
+        mov_x = jst and round(jst.axes[0], 1) and jst.axes[0] or (float(win.keys.right) - float(win.keys.left))
+        mov_y = jst and round(jst.axes[1], 1) and jst.axes[1] or (float(win.keys.up) - float(win.keys.down))
 
         dom.mov(mov_x * 0.01, mov_y * 0.01)
 

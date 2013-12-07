@@ -566,29 +566,6 @@ class Window(object):
         api.glfwSetFramebufferSizeCallback(self.handle, self._framebuffer_size_callback)
 
 
-class _Window(Window):
-
-    # input callbacks
-    key_fun             = None
-    char_fun            = None
-    scroll_fun          = None
-    cursor_enter_fun    = None
-    cursor_pos_fun      = None
-    mouse_button_fun    = None
-
-    # event callbacks
-    window_pos_fun      = None
-    window_size_fun     = None
-    window_close_fun    = None
-    window_refresh_fun  = None
-    window_focus_fun    = None
-    window_iconity_fun  = None
-    framebuffer_size_fun= None
-
-    def __init__(self, *args, **kwargs):
-        pass
-
-
 class _HintsBase(object):
     _hint_map_ = {
                     'resizable' :           api.GLFW_RESIZABLE,
@@ -708,49 +685,40 @@ def _hntprops_(hint_map, over_map):
 
 Hints = type('Hints', (_HintsBase,), _hntprops_(_HintsBase._hint_map_, _HintsBase._over_map_))
 
+def api_version():
+    return api.glfwGetVersion()
 
+def api_version_string():
+    return _str(api.glfwGetVersionString())
 
-class glfw(object):
-    def __init__(self):
-        raise TypeError("Objects of this class cannot be created")
+def init():
+    return bool(api.glfwInit())
 
-    api_version = api.glfwGetVersionString()
-    api_verinfo = api.glfwGetVersion()
+def terminate():
+    api.glfwTerminate()
 
-    @staticmethod
-    def init():
-        return bool(api.glfwInit())
+def poll_events():
+    api.glfwPollEvents()
 
-    @staticmethod
-    def terminate():
-        api.glfwTerminate()
+def wait_events():
+    api.glfwWaitEvents()
 
-    @staticmethod
-    def poll_events():
-        api.glfwPollEvents()
+def get_time():
+    return api.glfwGetTime()
 
-    @staticmethod
-    def wait_events():
-        api.glfwWaitEvents()
-
-    @staticmethod
-    def get_time():
-        return api.glfwGetTime()
-
-    @staticmethod
-    def set_time(nsec):
-        api.glfwSetTime(nsec)
+def set_time(nsec):
+    api.glfwSetTime(nsec)
 
 
 if __name__ == '__main__':
-    glfw.init()
+    init()
 
     for cver in [ (3,3), (3,2), (3,1), (3,0) ]:
         try:
             Window.hint(context_version=cver)
-            w = Window(800, 600, "Тест: %s" % glfw.api_version)
+            w = Window(800, 600, "Тест: %s" % api_version_string())
             break
-        except:
+        except _InvalidValueError:
             continue
 
     w.make_current()
@@ -761,10 +729,10 @@ if __name__ == '__main__':
 
     while not w.should_close:
         w.swap_buffers()
-        glfw.poll_events()
+        poll_events()
 
         if k.escape:
             w.should_close = True
 
-    glfw.terminate()
+    terminate()
 
