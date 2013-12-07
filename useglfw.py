@@ -162,39 +162,35 @@ class Joystick(object):
         return api.glfwGetJoystickButtons(self.joyidx)
 
 
+def _monitor_obj(moni):
+    monobj = super(Monitor, Monitor).__new__(Monitor)
+    monobj.handle = moni.get_void_p()
+    return monobj
+
 class Monitor(object):
-    _instance_ = []
+    _callback_ = None
+
+    CONNECTED = api.GLFW_CONNECTED
+    DISCONNECTED = api.GLFW_DISCONNECTED
 
     def __eq__(self, other):
-        return self.handle == other.handle
+        return self.handle.value == other.handle.value
 
     def __ne__(self, other):
         return not (self == other)
 
-    @api.GLFWmonitorfun
-    def _monitor_callback(_monitor, _event):
-        monobj = super(Monitor, Monitor).__new__(Monitor)
-        monobj.handle = _monitor.get_void_p()
-
-        if _event == api.GLFW_DISCONNECTED:
-            Monitor._instance_.remove(monobj)
-        elif _event == api.GLFW_CONNECTED:
-            Monitor._instance_ += [ monobj ]
+    @staticmethod
+    def set_monitor_callback(callback):
+        if not callback:
+            Monitor._callback_ = None
         else:
-            raise ValueError("Unknown monitor event")
+            def wrap(handle, *args, **kwargs):
+                callback(_monitor_obj(handle), *args, **kwargs)
+            Monitor._callback = wrap
+        api.glfwSetMonitorCallback(Monitor._callback_)
 
-    def __new__(cls, monidx):
-        if not cls._instance_:
-            for midx, _moni_ in enumerate(api.glfwGetMonitors()):
-                monobj = super(Monitor, cls).__new__(cls)
-                monobj.handle = _moni_.get_void_p()
-
-                cls._instance_ += [ monobj ]
-
-            api.glfwSetMonitorCallback(cls._monitor_callback)
-
-        return cls._instance_[monidx]
-
+    def __init__(self):
+        raise TypeError("Objects of this class cannot be created")
 
     @property
     def pos(self):
@@ -228,6 +224,13 @@ class Monitor(object):
     @gamma_ramp.setter
     def gamma_ramp(self, rgb_ramp):
         api.glfwSetGammaRamp(self.handle, rgb_ramp)
+
+
+def get_monitors():
+    return [ _monitor_obj(moni) for moni in api.glfwGetMonitors() ]
+
+def get_primary_monitor():
+    return _monitor_obj(api.glfwGetPrimaryMonitor())
 
 
 class Window(object):
@@ -322,7 +325,7 @@ class Window(object):
         api.glfwSetWindowSize(self.handle, *x_y)
 
     def iconify(self):
-        api.glfwIconityWindow(self.handle)
+        api.glfwIconifyWindow(self.handle)
 
     def restore(self):
         api.glfwRestoreWindow(self.handle)
@@ -422,11 +425,9 @@ class Window(object):
 
     @property
     def monitor(self):
-        _monitor = api.glfwGetWindowMonitor(self.handle)
-        if bool(_monitor):
-            monobj = super(Monitor, Monitor).__new__(Monitor)
-            monobj.handle = _monitor.get_void_p()
-            return monobj
+        moni = api.glfwGetWindowMonitor(self.handle)
+        if bool(moni):
+            return _monitor_obj(moni)
         else:
             return None
 
