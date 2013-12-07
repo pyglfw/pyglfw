@@ -1,5 +1,5 @@
 
-from useglfw import glfw, Window, Keys, Mice, Joystick, Monitor
+from useglfw import glfw, Window, Keys, Mice, Joystick, Monitor, get_primary_monitor
 from OpenGL.GL import *
 from math import *
 
@@ -78,11 +78,16 @@ if __name__ == '__main__':
 
     glfw.init()
 
-    vm = Monitor(0).video_modes[-1]
+    pm = get_primary_monitor()
 
-    win = Window(vm[0], vm[1], "nayadra", Monitor(0))
+    vm = pm.video_modes[-1]
+
+    win = Window(vm[0], vm[1], "nayadra", pm)
     win.swap_interval(0)
     win.set_key_callback(on_key)
+
+    if not win.monitor == pm:
+        raise Exception("Wrong monitor set!")
 
     jst = Joystick(0)
 
