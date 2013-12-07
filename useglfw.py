@@ -718,7 +718,7 @@ if __name__ == '__main__':
             Window.hint(context_version=cver)
             w = Window(800, 600, "Тест: %s" % api_version_string())
             break
-        except _InvalidValueError:
+        except PlatformError:
             continue
 
     w.make_current()
