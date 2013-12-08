@@ -34,7 +34,7 @@ def _error_check(func):
 
 import libglfw as api
 
-for _name in api.all_functions:
+for _name in api._all_functions:
     setattr(api, _name, _error_check(getattr(api, _name)))
 
 class NotInitializedError(Exception): pass

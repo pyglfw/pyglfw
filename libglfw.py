@@ -498,10 +498,10 @@ _declare('glfwSetCursorPosCallback', GLFWcursorposfun, GLFWwindowP, GLFWcursorpo
 _declare('glfwSetCursorEnterCallback', GLFWcursorenterfun, GLFWwindowP, GLFWcursorenterfun)
 _declare('glfwSetScrollCallback', GLFWscrollfun, GLFWwindowP, GLFWscrollfun)
 
-all_functions = list(_declare.dir.keys())
+_all_functions = list(_declare.dir.keys())
 
-for func in all_functions:
-    setattr(sys.modules[__name__], func, _declare.dir[func])
+for _func_ in _all_functions:
+    setattr(sys.modules[__name__], _func_, _declare.dir[_func_])
 
 if __name__ == '__main__':
     @GLFWkeyfun
