@@ -713,13 +713,16 @@ def set_time(nsec):
 if __name__ == '__main__':
     init()
 
-    for cver in [ (3,3), (3,2), (3,1), (3,0) ]:
+    for cver in [ (3,3,True), (3,2,True), (3,1,False), (3,0,False) ]:
         try:
-            Window.hint(context_version=cver)
+            if cver[2]:
+                Window.hint(context_version=cver[:2],forward_compat=True,opengl_profile=Window.CORE_PROFILE)
+            else:
+                Window.hint(context_version=cver[:2])
             w = Window(800, 600, "Тест: %s" % api_version_string())
             break
-        except PlatformError:
-            continue
+        except (PlatformError, VersionUnavailableError) as e:
+            print("%s %s" % (cver, e))
 
     w.make_current()
 
