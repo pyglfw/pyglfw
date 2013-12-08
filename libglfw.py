@@ -575,7 +575,10 @@ if __name__ == '__main__':
         if glfwGetKey(window, GLFW_KEY_ESCAPE):
             glfwSetWindowShouldClose(window, True)
 
-    print (glfwGetWindowUserPointer(window))
+    try:
+        print (glfwGetWindowUserPointer(window))
+    except:
+        print ('Set/Get UserPointer is not supported')
 
     glfwDestroyWindow(window)
 
