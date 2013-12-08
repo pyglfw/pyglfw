@@ -1,6 +1,6 @@
 # coding=utf-8
 
-import useglfw as glfw
+import pyglfw as glfw
 
 from OpenGL.GL import *
 from math import *
