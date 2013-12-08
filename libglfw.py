@@ -273,6 +273,8 @@ class _DeclareFunction(object):
 
 if sys.platform == 'win32':
     lib = cdll.glfw3
+elif sys.platform == 'darwin':
+    lib = cdll.LoadLibrary('libglfw3.dylib')
 else:
     lib = cdll.LoadLibrary('libglfw.so.3')
 
