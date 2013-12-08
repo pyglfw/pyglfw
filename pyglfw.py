@@ -410,14 +410,14 @@ class Window(object):
         return api.glfwGetWindowAttrib(self.handle, api.GLFW_CONTEXT_ROBUSTNESS)
 
     @staticmethod
-    def hint(hints=None, no_defaults=False, **kwargs):
+    def hint(hints=None, **kwargs):
         if hints and kwargs:
             raise ValueError("Hints should be passed via object or via kwargs")
 
         if not hints:
             hints = Hints(**kwargs)
 
-        if not hints._hints or not no_defaults:
+        if not hints._hints:
             api.glfwDefaultWindowHints()
 
         for hint, value in hints._hints.items():
