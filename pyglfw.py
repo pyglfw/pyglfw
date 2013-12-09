@@ -3,10 +3,11 @@
 if bytes is str:
     _unistr = unicode
     _unichr = unichr
+    _xrange = xrange
 else:
     _unistr = str
     _unichr = chr
-    xrange = range
+    _xrange = range
 
 def _utf(obj):
     if isinstance(obj, _unistr):
@@ -85,7 +86,7 @@ class Mice(object):
 
             return bool(api.glfwGetMouseButton(self.handle, index))
         elif isinstance(index, slice):
-            return [ self[i] for i in xrange(*index.indices(self.ntotal)) ]
+            return [ self[i] for i in _xrange(*index.indices(self.ntotal)) ]
         else:
             raise TypeError("Index %i is not supported" % index)
 
