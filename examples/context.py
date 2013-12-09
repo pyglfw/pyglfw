@@ -7,6 +7,7 @@ if __name__ == '__main__':
 
     for vermaj, vermin, iscore in [ (3,3,True), (3,2,True), (3,1,False), (3,0,False) ]:
         try:
+            Window.hint()
             Window.hint(context_version=(vermaj,vermin))
             if iscore:
                 Window.hint(forward_compat=True)
