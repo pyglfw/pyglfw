@@ -1,6 +1,6 @@
 # coding=utf-8
 
-from libglfw import *
+from pyglfw.libapi import *
 
 if __name__ == '__main__':
     @GLFWkeyfun

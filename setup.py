@@ -6,6 +6,6 @@ setup(name='pyglfw',
       author='Roman Valov',
       author_email='roman.valov@gmail.com',
       license='zlib',
-      py_modules=['libglfw', 'pyglfw'],
+      packages=['pyglfw'],
       )
 
