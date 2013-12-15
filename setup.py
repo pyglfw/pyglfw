@@ -7,6 +7,7 @@ setup(name='pyglfw',
       author_email='roman.valov@gmail.com',
       license='zlib',
       packages=['pyglfw', 'pyglfw.libapi', 'pyglfw.pyglfw'],
+      long_description=open('README.rst').read(),
       classifiers=(
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
