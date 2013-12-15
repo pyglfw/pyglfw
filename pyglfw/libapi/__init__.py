@@ -33,7 +33,7 @@ from .c_helper import GLFWmonitorfun
 
 from . import function
 
-_all_functions = list(function._declare.dir.keys())
+_all_functions = function._declare.dir
 
 from sys import modules as _sys_modules
 
