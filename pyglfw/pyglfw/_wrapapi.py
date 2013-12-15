@@ -24,8 +24,8 @@ def _error_check(func):
 
 from sys import modules as _sys_modules
 
-from .libapi import *
-from .libapi import _all_functions
+from ..libapi import *
+from ..libapi import _all_functions
 
 for _func_ in _all_functions:
     setattr(_sys_modules[__name__], _func_, _error_check(_all_functions[_func_]))

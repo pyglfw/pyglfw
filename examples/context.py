@@ -1,6 +1,6 @@
 # coding=utf-8
 
-from pyglfw import *
+from pyglfw.pyglfw import *
 
 if __name__ == '__main__':
     init()

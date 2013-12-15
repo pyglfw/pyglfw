@@ -1,6 +1,6 @@
 # coding=utf-8
 
-import pyglfw as fw
+import pyglfw.pyglfw as fw
 
 class CallbackWindow(fw.Window):
     def __init__(self, *args, **kwargs):
