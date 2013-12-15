@@ -6,7 +6,7 @@ setup(name='pyglfw',
       author='Roman Valov',
       author_email='roman.valov@gmail.com',
       license='zlib',
-      packages=['pyglfw', 'pyglfw.libapi'],
+      packages=['pyglfw', 'pyglfw.libapi', 'pyglfw.pyglfw'],
       classifiers=(
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
