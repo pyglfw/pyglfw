@@ -21,11 +21,20 @@ assumptions in mind:
 
 
 
- 
+Platforms
+---------
 
-        Supported
- - Support for CPython and PyPy implementations.
- - Support for 
+During development these bindings were proven to work 
+in all major operating systems environments including
+Windows, OSX and Linux.
+
+CPython implementations were tested against versions
+of Python 2.7 and Python 3.3 with no issues.
+
+By the way testing was performed with PyPy which reveals
+issue with ctypes implemenation in PyPy. Issue was fixed
+and should be available as a part of 2.2.2 release.
+
 
 Licensing
 ---------
