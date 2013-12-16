@@ -67,6 +67,9 @@ On Windows:
 
 then run exe installer from dist folder.
 
+Ensure you've installed GLFW library itself
+according to instructions on project's page.
+
 Libapi usage
 ============
 
