@@ -82,7 +82,7 @@ On Windows
 
 ::
 
-    > python ./setup.py bdist_wininst
+    > python setup.py bdist_wininst
 
 then run exe installer from dist folder.
 
