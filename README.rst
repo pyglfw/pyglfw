@@ -32,8 +32,40 @@ assumptions in mind:
 
 Installation
 ============
-        Using setup.py
 
+At the moment these binding could be installed with
+provided setup.py script. To do this retrieve sources
+either cloning repository or downloading and unpacking
+source archive. Following commands depend on system
+used.
+
+
+On Linux and OSX:
+
+::
+
+    $ python ./setup.py sdist
+
+then
+
+::
+
+    # easy_install dist/pyglfw-<ver>.tar.gz
+
+or
+
+::
+
+    # pip install dist/pyglfw-<ver>.tar.gz
+
+
+On Windows:
+
+::
+
+    > python ./setup.py bdist_wininst
+
+then run exe installer from dist folder.
 
 Libapi usage
 ============
