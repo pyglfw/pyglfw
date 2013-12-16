@@ -26,9 +26,15 @@ assumptions in mind:
         Supported
  - Support for CPython and PyPy implementations.
  - Support for 
-        Licensing
-        Versioning
 
+Licensing
+---------
+
+These bindings are distributed under the terms and
+conditions of zlib license with the exception to files
+in examples folder which are provided with no limitations
+to use. Full text of license with copyright notice is
+provided in the LICENSE file.
 
 Installation
 ============
@@ -40,7 +46,8 @@ source archive. Following commands depend on system
 used.
 
 
-On Linux and OSX:
+On Linux and OSX
+----------------
 
 ::
 
@@ -59,7 +66,8 @@ or
     # pip install dist/pyglfw-<ver>.tar.gz
 
 
-On Windows:
+On Windows
+----------
 
 ::
 
@@ -70,8 +78,8 @@ then run exe installer from dist folder.
 Ensure you've installed GLFW library itself
 according to instructions on project's page.
 
-Libapi usage
-============
+Libapi
+======
 
 Low-level **libapi** package serves as thin wrapper
 above GLFW library. It's api mostly resemble one of
