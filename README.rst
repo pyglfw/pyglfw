@@ -138,10 +138,121 @@ The requirement to hold references also spreads to
 functions that are settings varios callbacks. Please
 refer to *raw_api* in examples for usage primer.
 
-Pyglfw usage
+Pyglfw
+======
+
+Pythonic **pyglfw** package handles following moments:
+
+ - Encapsulation of struct pointers and functions api
+   into objects with properties and methods.
+ - Transparent usage of strings (either from python 2
+   or from python 3).
+ - Raising exceptions in case of errors.
+ - Eliminates need to use of ctypes structures and
+   callback prototypes.
+ - Holds references for set to callback functions.
+ - Provide pythonic types for callbacks.
+
+and following functionality is restricted:
+
+ - No get/set window pointers. Due to its ambiquity.
+ - No set error callback. Error callback is used to
+   raise exeptions.
+ - Set callback methods doesn't return previously
+   used callback. It's unable to certainly map them
+   to python object in all cases.
+
+Side-by-Side
 ============
-        About
-        Side-by-Side
 
+Basics
+------
 
+libapi:
+
+::
+
+   from pyglfw.libapi import *
+
+   glfwInit()
+
+   glfwGetVersion()
+
+   glfwTerminate()
+
+pyglfw:
+
+::
+
+   import pyglfw.pyglfw as glfw
+
+   glfw.init()
+
+   glfw.api_version()
+
+   glfw.terminate()
+
+Monitors
+--------
+
+libapi:
+
+::
+
+   monitorp = glfwGetPrimaryMonitor()
+
+   curmode = glfwGetVideoMode(monitorp)
+
+   allmodes = glfwGetVideoModes(monitorp)
+
+   @GLFWmonitorfun
+   def on_monitor_event(monitor, event):
+       if event == GLFW_CONNECTED:
+           print(glfwGetMonitorName(monitor))
+
+   glfwSetMonitorCallback(on_monitor_event)
+
+pyglfw:
+
+::
+
+   monitor = glfw.get_primary_monitor()
+
+   curmore = monitor.video_mode
+
+   allmodes = monitor.video_modes
+
+   def on_monitor_event(monitor, event):
+       if event == glfw.Monitor.CONNECTED:
+           print(monitor.name)
+
+   glfw.Monitor.set_callback(on_monitor_event)
+
+Hints
+-----
+
+libapi:
+
+::
+
+   glfwDefaultWindowHints()
+
+   glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API)
+
+   w, h = curmode.width, curmode.height
+   windowp = glfwCreateWindow(w, h, b'libapi', None, None)
+
+   glfwDestroyWindow(windowp)
+
+pyglfw:
+
+::
+
+   glfw.Window.hint()
+
+   glfw.Window.hint(client_api=glfw.Window.OPENGL_API)
+
+   window = glfw.Window(curmode[0], curmode[1], 'libapi')
+
+   window.close()
 
