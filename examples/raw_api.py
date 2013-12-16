@@ -28,7 +28,7 @@ if __name__ == '__main__':
     if not glfwInit():
         raise RuntimeError()
 
-    print(glfwGetVersionString().decode())
+    print(_str(glfwGetVersionString()))
 
     bestmode = 0, 0, None
 
