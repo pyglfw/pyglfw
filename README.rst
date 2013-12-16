@@ -50,6 +50,9 @@ provided in the LICENSE file.
 Installation
 ============
 
+Ensure you've installed GLFW library itself according
+to instructions on project's page.
+
 At the moment these binding could be installed with
 provided setup.py script. To do this retrieve sources
 either cloning repository or downloading and unpacking
@@ -85,9 +88,6 @@ On Windows
     > python ./setup.py bdist_wininst
 
 then run exe installer from dist folder.
-
-Ensure you've installed GLFW library itself
-according to instructions on project's page.
 
 -------
 
