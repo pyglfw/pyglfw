@@ -252,7 +252,8 @@ pyglfw:
 
    glfw.Window.hint(client_api=glfw.Window.OPENGL_API)
 
-   window = glfw.Window(curmode[0], curmode[1], 'libapi')
+   w, h = curmode[0], curmode[1]
+   window = glfw.Window(w, h, 'pyglfw')
 
    window.close()
 
