@@ -15,7 +15,7 @@ with the following assumptions in mind:
 
  - Compatibility with GLFW version 3 and higher api.
  - Support for both Python2 (2.7) and Python3 (3.3+).
- - Provide pythonic api.
+ - Provide low-level and pythonic api separately.
  - No external dependencies. Thus using ctypes.
 
 Platforms
