@@ -52,7 +52,7 @@ _declare('glfwGetMonitorName', c_char_p, GLFWmonitorP)
 _declare('glfwSetMonitorCallback', GLFWmonitorfun, GLFWmonitorfun)
 
 _declare('glfwGetVideoMode', (GLFWvidmodeP, ret_addr_p), GLFWmonitorP)
-_declare('glfwGetVideoModes', (GLFWvidmodeP, ret_list_p(1)), c_void_p, (POINTER(c_int),))
+_declare('glfwGetVideoModes', (GLFWvidmodeP, ret_list_p(1)), GLFWmonitorP, (POINTER(c_int),))
 
 _declare('glfwSetGamma', c_void, GLFWmonitorP, c_float)
 _declare('glfwGetGammaRamp', (GLFWgammarampP, ret_ramp_p), GLFWmonitorP)
