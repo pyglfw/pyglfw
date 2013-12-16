@@ -7,19 +7,16 @@ Python bindings for the `GLFW <http://www.glfw.org/>`_ library.
 
 Introduction
 ============
-        About GLFW
-        Other bindings
 
-
-These binding were developed with the following 
-assumptions in mind:
+At the moment of development there were numerous
+implementations of bindings for glfw library to python.
+Besides NIH syndrome these binding were developed
+with the following assumptions in mind:
 
  - Compatibility with GLFW version 3 and higher api.
  - Support for both Python2 (2.7) and Python3 (3.3+).
  - Provide pythonic api.
  - No external dependencies. Thus using ctypes.
-
-
 
 Platforms
 ---------
