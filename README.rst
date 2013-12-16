@@ -36,6 +36,8 @@ in examples folder which are provided with no limitations
 to use. Full text of license with copyright notice is
 provided in the LICENSE file.
 
+-------
+
 Installation
 ============
 
@@ -77,6 +79,8 @@ then run exe installer from dist folder.
 
 Ensure you've installed GLFW library itself
 according to instructions on project's page.
+
+-------
 
 Libapi
 ======
