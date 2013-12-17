@@ -308,13 +308,13 @@ libapi:
    if not glfwWindowShouldClose():
        glfwSetWindowTitle(b'libapi')
 
-       glfwGetWindowSize()
+       size = glfwGetWindowSize()
 
        glfwShowWindow()
 
-   glfwGetWindowAttrib(GLFW_VISIBLE)
+   is_visible = glfwGetWindowAttrib(GLFW_VISIBLE)
 
-   glfwGetWindowAttrib(GLFW_CLIENT_API)
+   client_api = glfwGetWindowAttrib(GLFW_CLIENT_API)
 
 
 python:
@@ -326,12 +326,12 @@ python:
    if not window.should_close:
        window.set_title('pyglfw')
 
-       window.size
+       size = window.size
 
        window.show()
 
-    window.visible
+    is_visible = window.visible
 
-    window.client_api
+    client_api = window.client_api
 
 
