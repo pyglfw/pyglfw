@@ -296,4 +296,42 @@ python
 
    window.swap_buffers()
 
+Windows:
+--------
+
+libapi:
+
+::
+
+   glfwSetWindowShouldClose(0)
+
+   if not glfwWindowShouldClose():
+       glfwSetWindowTitle(b'libapi')
+
+       glfwGetWindowSize()
+
+       glfwShowWindow()
+
+   glfwGetWindowAttrib(GLFW_VISIBLE)
+
+   glfwGetWindowAttrib(GLFW_CLIENT_API)
+
+
+python:
+
+::
+
+   window.should_close = False
+
+   if not window.should_close:
+       window.set_title('pyglfw')
+
+       window.size
+
+       window.show()
+
+    window.visible
+
+    window.client_api
+
 
