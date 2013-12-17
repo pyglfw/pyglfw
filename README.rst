@@ -168,6 +168,10 @@ and following functionality is restricted:
 Side-by-Side
 ============
 
+Here is side-by-side comparison of same operations
+performed via low-level (libapi) and pythonic (pyglfw)
+bindings.
+
 Basics
 ------
 
@@ -369,6 +373,10 @@ libapi:
 
    glfwSetKeyCallback(windowp, on_key)
 
+   if glfwJoystickPresent(0):
+       joy_name = glfwGetJoystickName(0)
+       joy_axes = glfwGetJoystickAxes(0)
+
 pyglfw:
 
 ::
@@ -389,5 +397,10 @@ pyglfw:
 
    window.set_key_callback(on_key)
 
+   js = glfw.Joystick(0)
+
+   if js:
+       joy_name = js.name
+       joy_axes = js.axes
 
 
