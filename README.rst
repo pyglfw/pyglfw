@@ -316,6 +316,14 @@ libapi:
 
    client_api = glfwGetWindowAttrib(GLFW_CLIENT_API)
 
+   glfwSetWindowAttrib(GLFW_FOCUSED, 1)
+
+   @GLFWwindowsizefun
+   def on_window_size(windowp, w, h):
+       glfwSetWindowSize(windowp, size[0], size[1])
+
+   glfwSetWindowSizeCallback(windowp, on_window_size)
+
 
 python:
 
@@ -334,4 +342,10 @@ python:
 
     client_api = window.client_api
 
+    window.focused = True
+
+    def on_window_size(window, w, h):
+        window.size = size
+
+    window.set_window_size_callback(on_window_size)
 
