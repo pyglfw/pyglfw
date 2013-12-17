@@ -284,7 +284,7 @@ libapi:
    glfwSwapBuffers(windowp)
 
 
-python
+pyglfw:
 
 ::
 
@@ -296,14 +296,12 @@ python
 
    window.swap_buffers()
 
-Windows:
---------
+Windows
+-------
 
 libapi:
 
 ::
-
-   glfwSetWindowShouldClose(0)
 
    if not glfwWindowShouldClose():
        glfwSetWindowTitle(b'libapi')
@@ -325,11 +323,9 @@ libapi:
    glfwSetWindowSizeCallback(windowp, on_window_size)
 
 
-python:
+pyglfw:
 
 ::
-
-   window.should_close = False
 
    if not window.should_close:
        window.set_title('pyglfw')
@@ -338,14 +334,60 @@ python:
 
        window.show()
 
-    is_visible = window.visible
+   is_visible = window.visible
 
-    client_api = window.client_api
+   client_api = window.client_api
 
-    window.focused = True
+   window.has_focus = True
 
-    def on_window_size(window, w, h):
-        window.size = size
+   def on_window_size(window, w, h):
+       window.size = size
 
-    window.set_window_size_callback(on_window_size)
+   window.set_window_size_callback(on_window_size)
+
+Inputs
+------
+
+libapi:
+
+::
+
+   mode = glfwGetInputMode(windowp, GLFW_STICKY_KEYS)
+
+   glfwSetInputMode(windowp, GLFW_STICKY_MOUSE_BUTTONS, mode)
+
+   is_escape = glfwGetKey(windowp, GLFW_ESCAPE)
+
+   is_middle = glfwGetMouseButton(windowp, GLFW_MOUSE_BUTTON_MIDDLE)
+
+   cursor_at = glfwGetCursorPos(windowp)
+
+   @GLFWkeyfun
+   def on_key(windowp, key, scancode, action, mods):
+       if key == GLFW_ESCAPE:
+           glfwSetWindowShouldClose(1)
+
+   glfwSetKeyCallback(windowp, on_key)
+
+pyglfw:
+
+::
+
+   mode = window.sticky_keys
+
+   window.sticky_mice = mode
+
+   is_escape = window.keys.escape
+
+   is_middle = window.mice.middle
+
+   cursor_at = window.cursor_pos
+
+   def on_key(window, key, scancode, action, mods):
+       if key == glfw.Keys.ESCAPE:
+           window.should_close = True
+
+   window.set_key_callback(on_key)
+
+
 
