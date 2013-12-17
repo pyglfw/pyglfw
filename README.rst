@@ -82,7 +82,7 @@ On Windows
 
 ::
 
-    > python setup.py bdist_wininst
+    > python.exe setup.py bdist_wininst
 
 then run exe installer from dist folder.
 
@@ -160,7 +160,7 @@ and following functionality is restricted:
    raise exeptions.
  - Set callback methods doesn't return previously
    used callback. It's unable to certainly map them
-   to python object in all cases.
+   to python object in every case.
 
 Side-by-Side
 ============
@@ -228,8 +228,8 @@ pyglfw:
 
    glfw.Monitor.set_callback(on_monitor_event)
 
-Hints
------
+Hints & Windows
+---------------
 
 libapi:
 
@@ -256,4 +256,5 @@ pyglfw:
    window = glfw.Window(w, h, 'pyglfw')
 
    window.close()
+
 
