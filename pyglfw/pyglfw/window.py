@@ -49,7 +49,7 @@ class Window(object):
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        _ctx = self.__class__._contexts_ and self.__class__._contexts_.pop().handle
+        _ctx = self.__class__._contexts_ and self.__class__._contexts_.pop().handle or None
         api.glfwMakeContextCurrent(_ctx)
         return False
 

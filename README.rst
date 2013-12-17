@@ -161,6 +161,9 @@ and following functionality is restricted:
  - Set callback methods doesn't return previously
    used callback. It's unable to certainly map them
    to python object in every case.
+ - No check for extensions and proc address query.
+   This can be handled with dedicated frameworks
+   like PyOpenGL.
 
 Side-by-Side
 ============
@@ -180,6 +183,8 @@ libapi:
 
    glfwTerminate()
 
+   glfwPollEvents()
+
 pyglfw:
 
 ::
@@ -191,6 +196,8 @@ pyglfw:
    glfw.api_version()
 
    glfw.terminate()
+
+   glfw.poll_events()
 
 Monitors
 --------
@@ -228,8 +235,8 @@ pyglfw:
 
    glfw.Monitor.set_callback(on_monitor_event)
 
-Hints & Windows
----------------
+Hints
+-----
 
 libapi:
 
@@ -256,5 +263,37 @@ pyglfw:
    window = glfw.Window(w, h, 'pyglfw')
 
    window.close()
+
+Swap
+----
+
+libapi:
+
+::
+
+   context = glfwGetCurrentContext()
+
+   glfwMakeContextCurrent(windowp)
+
+   glfwSwapInterval(0)
+
+   glfwMakeContextCurrent(context)
+
+   glfwMakeContextCurrent(windowp)
+
+   glfwSwapBuffers(windowp)
+
+
+python
+
+::
+
+   # makes context current
+   # and restores previous
+   window.swap_interval(0)
+
+   window.make_current()
+
+   window.swap_buffers()
 
 
