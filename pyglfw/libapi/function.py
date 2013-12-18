@@ -1,12 +1,12 @@
 # coding=utf-8
-################################################################################
+###############################################################################
 #
 #  This file is part of pyglfw project which is subject to zlib license.
 #  See the LICENSE file for details.
 #
 #  Copyright (c) 2013   Roman Valov <roman.valov@gmail.com>
 #
-################################################################################
+###############################################################################
 
 import sys
 
@@ -120,4 +120,3 @@ _declare('glfwSetMouseButtonCallback', GLFWmousebuttonfun, GLFWwindowP, GLFWmous
 _declare('glfwSetCursorPosCallback', GLFWcursorposfun, GLFWwindowP, GLFWcursorposfun)
 _declare('glfwSetCursorEnterCallback', GLFWcursorenterfun, GLFWwindowP, GLFWcursorenterfun)
 _declare('glfwSetScrollCallback', GLFWscrollfun, GLFWwindowP, GLFWscrollfun)
-

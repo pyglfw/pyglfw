@@ -1,12 +1,12 @@
 # coding=utf-8
-################################################################################
+###############################################################################
 #
 #  This file is part of pyglfw project which is subject to zlib license.
 #  See the LICENSE file for details.
 #
 #  Copyright (c) 2013   Roman Valov <roman.valov@gmail.com>
 #
-################################################################################
+###############################################################################
 
 # ---- constant definitions ----
 
@@ -58,11 +58,11 @@ GLFW_OPENGL_PROFILE         = 0x00022008
 GLFW_OPENGL_API             = 0x00030001
 GLFW_OPENGL_ES_API          = 0x00030002
 
-GLFW_NO_ROBUSTNESS          =         0
+GLFW_NO_ROBUSTNESS          = 0
 GLFW_NO_RESET_NOTIFICATION  = 0x00031001
 GLFW_LOSE_CONTEXT_ON_RESET  = 0x00031002
 
-GLFW_OPENGL_ANY_PROFILE     =         0
+GLFW_OPENGL_ANY_PROFILE     = 0
 GLFW_OPENGL_CORE_PROFILE    = 0x00032001
 GLFW_OPENGL_COMPAT_PROFILE  = 0x00032002
 
@@ -237,4 +237,3 @@ GLFW_MOD_SHIFT              = 0x0001
 GLFW_MOD_CONTROL            = 0x0002
 GLFW_MOD_ALT                = 0x0004
 GLFW_MOD_SUPER              = 0x0008
-

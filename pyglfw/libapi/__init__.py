@@ -1,12 +1,12 @@
 # coding=utf-8
-################################################################################
+###############################################################################
 #
 #  This file is part of pyglfw project which is subject to zlib license.
 #  See the LICENSE file for details.
 #
 #  Copyright (c) 2013   Roman Valov <roman.valov@gmail.com>
 #
-################################################################################
+###############################################################################
 
 from .constant import *
 
@@ -39,4 +39,3 @@ from sys import modules as _sys_modules
 
 for _func_ in _all_functions:
     setattr(_sys_modules[__name__], _func_, function._declare.dir[_func_])
-
