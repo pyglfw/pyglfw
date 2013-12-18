@@ -84,7 +84,7 @@ if __name__ == '__main__':
 
     vm = pm.video_modes[-1]
 
-    win = glfw.Window(vm[0], vm[1], "nayadra", pm)
+    win = glfw.Window(vm.width, vm.height, "nayadra", pm)
     win.swap_interval(0)
     win.set_key_callback(on_key)
 

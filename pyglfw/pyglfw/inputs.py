@@ -1,15 +1,16 @@
 # coding=utf-8
-################################################################################
+###############################################################################
 #
 #  This file is part of pyglfw project which is subject to zlib license.
 #  See the LICENSE file for details.
 #
 #  Copyright (c) 2013   Roman Valov <roman.valov@gmail.com>
 #
-################################################################################
+###############################################################################
 
 from . import _wrapapi as api
-from .common import _str, _utf, _unichr
+from .common import _str
+
 
 class Mice(object):
     def __init__(self, handle):
@@ -28,7 +29,7 @@ class Mice(object):
 
             return bool(api.glfwGetMouseButton(self.handle, index))
         elif isinstance(index, slice):
-            return [ self[i] for i in range(*index.indices(self.ntotal)) ]
+            return [self[i] for i in range(*index.indices(self.ntotal))]
         else:
             raise TypeError("Index %i is not supported" % index)
 
@@ -59,6 +60,7 @@ class _Keys(object):
         if isinstance(index, int):
             return bool(api.glfwGetKey(self.handle, index))
 
+
 def _keyattrs_():
     _keyattribs_ = {}
     _key_prefix_ = 'GLFW_KEY_'
@@ -67,7 +69,7 @@ def _keyattrs_():
     for name, item in vars(api).items():
         if name.startswith(_key_prefix_):
             _name_ = name[_key_prelen_:]
-            if _name_[0] in [ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' ]:
+            if _name_[0] in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']:
                 _name_ = 'NUM_' + _name_
             _name_ = _name_.upper()
             _prop_ = _name_.lower()
@@ -81,6 +83,7 @@ def _keyattrs_():
 
 
 Keys = type('Keys', (_Keys,), _keyattrs_())
+
 
 class Joystick(object):
     def __init__(self, joyidx):
@@ -103,5 +106,3 @@ class Joystick(object):
     @property
     def buttons(self):
         return api.glfwGetJoystickButtons(self.joyidx)
-
-

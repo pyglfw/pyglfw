@@ -1,20 +1,32 @@
 # coding=utf-8
-################################################################################
+###############################################################################
 #
 #  This file is part of pyglfw project which is subject to zlib license.
 #  See the LICENSE file for details.
 #
 #  Copyright (c) 2013   Roman Valov <roman.valov@gmail.com>
 #
-################################################################################
+###############################################################################
 
 from . import _wrapapi as api
-from .common import _str, _utf, _unichr
+from .common import _str
+
 
 def _monitor_obj(moni):
     monobj = super(Monitor, Monitor).__new__(Monitor)
     monobj.handle = moni.get_void_p()
     return monobj
+
+
+class VideoMode(object):
+    __slots__ = 'width', 'height', 'bits', 'refresh_rate'
+
+    def __init__(self, vm):
+        self.width = vm.width
+        self.height = vm.height
+        self.bits = (vm.redBits, vm.greenBits, vm.blueBits)
+        self.refresh_rate = vm.refreshRate
+
 
 class Monitor(object):
     _callback_ = None
@@ -55,13 +67,11 @@ class Monitor(object):
 
     @property
     def video_mode(self):
-        _vidmode = api.glfwGetVideoMode(self.handle)
-        return _vidmode.width, _vidmode.height, (_vidmode.redBits, _vidmode.greenBits, _vidmode.blueBits), _vidmode.refreshRate
+        return VideoMode(api.glfwGetVideoMode(self.handle))
 
     @property
     def video_modes(self):
-        _vidmodes = api.glfwGetVideoModes(self.handle)
-        return [ (vm.width, vm.height, (vm.redBits, vm.greenBits, vm.blueBits), vm.refreshRate) for vm in _vidmodes ]
+        return [VideoMode(vm) for vm in api.glfwGetVideoModes(self.handle)]
 
     def set_gamma(self, gamma):
         api.glfwSetGamma(self.handle, gamma)
@@ -76,8 +86,8 @@ class Monitor(object):
 
 
 def get_monitors():
-    return [ _monitor_obj(moni) for moni in api.glfwGetMonitors() ]
+    return [_monitor_obj(moni) for moni in api.glfwGetMonitors()]
+
 
 def get_primary_monitor():
     return _monitor_obj(api.glfwGetPrimaryMonitor())
-
