@@ -2,26 +2,29 @@
 
 import pyglfw.pyglfw as fw
 
-class CallbackWindow(fw.Window):
-    def __init__(self, *args, **kwargs):
-        super(CallbackWindow, self).__init__(*args, **kwargs)
 
-        self.set_key_callback(CallbackWindow.key_callback)
-        self.set_char_callback(CallbackWindow.char_callback)
-        self.set_scroll_callback(CallbackWindow.scroll_callback)
-        self.set_mouse_button_callback(CallbackWindow.mouse_button_callback)
-        self.set_cursor_enter_callback(CallbackWindow.cursor_enter_callback)
-        self.set_cursor_pos_callback(CallbackWindow.cursor_pos_callback)
-        self.set_window_size_callback(CallbackWindow.window_size_callback)
-        self.set_window_pos_callback(CallbackWindow.window_pos_callback)
-        self.set_window_close_callback(CallbackWindow.window_close_callback)
-        self.set_window_refresh_callback(CallbackWindow.window_refresh_callback)
-        self.set_window_focus_callback(CallbackWindow.window_focus_callback)
-        self.set_window_iconify_callback(CallbackWindow.window_iconify_callback)
-        self.set_framebuffer_size_callback(CallbackWindow.framebuffer_size_callback)
+class CbWindow(fw.Window):
+    def __init__(self, *args, **kwargs):
+        super(CbWindow, self).__init__(*args, **kwargs)
+
+        self.set_key_callback(CbWindow.key_callback)
+        self.set_char_callback(CbWindow.char_callback)
+        self.set_scroll_callback(CbWindow.scroll_callback)
+        self.set_mouse_button_callback(CbWindow.mouse_button_callback)
+        self.set_cursor_enter_callback(CbWindow.cursor_enter_callback)
+        self.set_cursor_pos_callback(CbWindow.cursor_pos_callback)
+        self.set_window_size_callback(CbWindow.window_size_callback)
+        self.set_window_pos_callback(CbWindow.window_pos_callback)
+        self.set_window_close_callback(CbWindow.window_close_callback)
+        self.set_window_refresh_callback(CbWindow.window_refresh_callback)
+        self.set_window_focus_callback(CbWindow.window_focus_callback)
+        self.set_window_iconify_callback(CbWindow.window_iconify_callback)
+        self.set_framebuffer_size_callback(CbWindow.framebuffer_size_callback)
 
     def key_callback(self, key, scancode, action, mods):
-        print("keybrd: key=%s scancode=%s action=%s mods=%s" % (key, scancode, action, mods))
+        print(
+            "keybrd: key=%s scancode=%s action=%s mods=%s" %
+            (key, scancode, action, mods))
 
     def char_callback(self, char):
         print("unichr: char=%s" % char)
@@ -59,16 +62,21 @@ class CallbackWindow(fw.Window):
     def framebuffer_size_callback(self, fbs_x, fbs_y):
         print("buffer: x=%s y=%s" % (fbs_x, fbs_y))
 
+
+change_markers = {fw.Monitor.CONNECTED: '+', fw.Monitor.DISCONNECTED: '-'}
+
+
 def on_monitor(_monitor, _event):
-    change = { fw.Monitor.CONNECTED : '+', fw.Monitor.DISCONNECTED : '-' }.get(_event, '~')
+    change = change_markers.get(_event, '~')
     print("screen: %s %s" % (change, _monitor.name))
+
 
 def main():
     fw.init()
 
     fw.Monitor.set_callback(on_monitor)
 
-    win = CallbackWindow(800, 600, "callback window")
+    win = CbWindow(800, 600, "callback window")
     win.make_current()
 
     while not win.should_close:

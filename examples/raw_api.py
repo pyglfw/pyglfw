@@ -30,22 +30,21 @@ if __name__ == '__main__':
 
     print(_str(glfwGetVersionString()))
 
-    bestmode = 0, 0, None
+    w, h, use_monitor = 0, 0, None
 
     monitors = glfwGetMonitors()
     for monitor in monitors:
         vidmodes = glfwGetVideoModes(monitor)
         for vidmode in vidmodes:
-            if (vidmode.height * vidmode.width) > bestmode[0] * bestmode[1]:
-                bestmode = vidmode.width, vidmode.height, monitor
-
+            if (vidmode.height * vidmode.width) > w * h:
+                w, h, use_monitor = vidmode.width, vidmode.height, monitor
 
     glfwSetGamma(monitors[0], -1.0)
     gammar = glfwGetGammaRamp(monitors[0])
     glfwSetGammaRamp(monitors[0], gammar)
 
     window = glfwCreateWindow(800, 600, _utf("Привет, Мир!"), None, None)
-    #window = glfwCreateWindow(bestmode[0], bestmode[1], "Привет, Мир!", monitor, None)
+    #window = glfwCreateWindow(w, h, "Привет, Мир!", use_monitor, None)
     if not window:
         glfwTerminate()
         raise SystemExit()
@@ -84,4 +83,3 @@ if __name__ == '__main__':
     glfwDestroyWindow(window)
 
     glfwTerminate()
-
