@@ -1,4 +1,3 @@
-
 ======
 pyglfw
 ======
@@ -92,7 +91,7 @@ then run exe installer from dist folder.
 NOTE: Prebuilt exe installers could be found on the
 project's home `download page`__
 
-__<https://bitbucket.org/pyglfw/pyglfw/downloads>
+__ https://bitbucket.org/pyglfw/pyglfw/downloads
 
 -------
 
