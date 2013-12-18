@@ -1,18 +1,19 @@
 # coding=utf-8
-################################################################################
+###############################################################################
 #
 #  This file is part of pyglfw project which is subject to zlib license.
 #  See the LICENSE file for details.
 #
 #  Copyright (c) 2013   Roman Valov <roman.valov@gmail.com>
 #
-################################################################################
+###############################################################################
 
 from . import _wrapapi as api
 from .common import _str, _utf, _unichr
 from .hint import Hints
 from .inputs import Keys, Mice
 from .monitor import _monitor_obj
+
 
 class Window(object):
     _instance_ = {}
@@ -21,8 +22,10 @@ class Window(object):
     def __init__(self, width, height, title, monitor=None, shared=None):
         mon_handle = monitor and monitor.handle or None
         shr_handle = shared and shared.handle or None
+        win_handle = api.glfwCreateWindow(width, height, _utf(title),
+                                          mon_handle, shr_handle)
 
-        self.handle = api.glfwCreateWindow(width, height, _utf(title), mon_handle, shr_handle).get_void_p()
+        self.handle = win_handle.get_void_p()
         self.__class__._instance_[self.handle.value] = self
 
         self.mice = Mice(self.handle)
@@ -45,12 +48,15 @@ class Window(object):
 
     def __enter__(self):
         api.glfwMakeContextCurrent(self.handle)
-        self.__class__._contexts_ += [ self ]
+        self.__class__._contexts_ += [self]
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        _ctx = self.__class__._contexts_ and self.__class__._contexts_.pop().handle or None
-        api.glfwMakeContextCurrent(_ctx)
+        if self.__class__._contexts_:
+            _ctx = self.__class__._contexts_.pop().handle
+            api.glfwMakeContextCurrent(_ctx)
+        else:
+            api.glfwMakeContextCurrent(None)
         return False
 
     def make_current(self):
@@ -111,9 +117,12 @@ class Window(object):
     def restore(self):
         api.glfwRestoreWindow(self.handle)
 
+    def _get_attrib(self, attrib):
+        return api.glfwGetWindowAttrib(self.handle, attrib)
+
     @property
     def iconified(self):
-        return bool(api.glfwGetWindowAttrib(self.handle, api.GLFW_ICONIFIED))
+        return bool(self._get_attrib(api.GLFW_ICONIFIED))
 
     @iconified.setter
     def iconified(self, flag):
@@ -130,7 +139,7 @@ class Window(object):
 
     @property
     def visible(self):
-        return bool(api.glfwGetWindowAttrib(self.handle, api.GLFW_VISIBLE))
+        return bool(self._get_attrib(api.GLFW_VISIBLE))
 
     @visible.setter
     def visible(self, flag):
@@ -141,38 +150,36 @@ class Window(object):
 
     @property
     def has_focus(self):
-        return bool(api.glfwGetWindowAttrib(self.handle, api.GLFW_FOCUSED))
+        return bool(self._get_attrib(api.GLFW_FOCUSED))
 
     @property
     def resizable(self):
-        return bool(api.glfwGetWindowAttrib(self.handle, api.GLFW_RESIZABLE))
+        return bool(self._get_attrib(api.GLFW_RESIZABLE))
 
     @property
     def decorated(self):
-        return bool(api.glfwGetWindowAttrib(self.handle, api.GLFW_DECORATED))
+        return bool(self._get_attrib(api.GLFW_DECORATED))
 
     @property
     def context_version(self):
-        return (
-                api.glfwGetWindowAttrib(self.handle, api.GLFW_CONTEXT_VERSION_MAJOR),
-                api.glfwGetWindowAttrib(self.handle, api.GLFW_CONTEXT_VERSION_MINOR),
-                api.glfwGetWindowAttrib(self.handle, api.GLFW_CONTEXT_REVISION),
-               )
+        return (self._get_attrib(api.GLFW_CONTEXT_VERSION_MAJOR),
+                self._get_attrib(api.GLFW_CONTEXT_VERSION_MINOR),
+                self._get_attrib(api.GLFW_CONTEXT_REVISION))
 
     @property
     def debug_context(self):
-        return bool(api.glfwGetWindowAttrib(self.handle, api.GLFW_OPENGL_DEBUG_CONTEXT))
+        return bool(self._get_attrib(api.GLFW_OPENGL_DEBUG_CONTEXT))
 
     @property
     def forward_compat(self):
-        return bool(api.glfwGetWindowAttrib(self.handle, api.GLFW_OPENGL_FORWARD_COMPAT))
+        return bool(self._get_attrib(api.GLFW_OPENGL_FORWARD_COMPAT))
 
     OPENGL_API = api.GLFW_OPENGL_API
     OPENGL_ES_API = api.GLFW_OPENGL_ES_API
 
     @property
     def client_api(self):
-        return api.glfwGetWindowAttrib(self.handle, api.GLFW_CLIENT_API)
+        return self._get_attrib(api.GLFW_CLIENT_API)
 
     CORE_PROFILE = api.GLFW_OPENGL_CORE_PROFILE
     COMPAT_PROFILE = api.GLFW_OPENGL_COMPAT_PROFILE
@@ -180,7 +187,7 @@ class Window(object):
 
     @property
     def opengl_profile(self):
-        return api.glfwGetWindowAttrib(self.handle, api.GLFW_OPENGL_PROFILE)
+        return self._get_attrib(api.GLFW_OPENGL_PROFILE)
 
     NO_ROBUSTNESS = api.GLFW_NO_ROBUSTNESS
     NO_RESET_NOTIFICATION = api.GLFW_NO_RESET_NOTIFICATION
@@ -188,7 +195,7 @@ class Window(object):
 
     @property
     def context_robustness(self):
-        return api.glfwGetWindowAttrib(self.handle, api.GLFW_CONTEXT_ROBUSTNESS)
+        return self._get_attrib(api.GLFW_CONTEXT_ROBUSTNESS)
 
     @staticmethod
     def hint(hints=None, **kwargs):
@@ -221,24 +228,26 @@ class Window(object):
         api.glfwSetClipboardString(self.handler, _utf(buffer))
 
     _cursor_modes_get = {
-                            api.GLFW_CURSOR_DISABLED : None,
-                            api.GLFW_CURSOR_HIDDEN : False,
-                            api.GLFW_CURSOR_NORMAL : True,
-                        }
+        api.GLFW_CURSOR_DISABLED: None,
+        api.GLFW_CURSOR_HIDDEN: False,
+        api.GLFW_CURSOR_NORMAL: True,
+    }
 
     _cursor_modes_set = {
-                            None : api.GLFW_CURSOR_DISABLED,
-                            False : api.GLFW_CURSOR_HIDDEN,
-                            True : api.GLFW_CURSOR_NORMAL,
-                        }
+        None: api.GLFW_CURSOR_DISABLED,
+        False: api.GLFW_CURSOR_HIDDEN,
+        True: api.GLFW_CURSOR_NORMAL,
+    }
 
     @property
     def cursor_mode(self):
-        return self._cursor_modes_get.get(api.glfwGetInputMode(self.handle, api.GLFW_CURSOR), None)
+        libapi_cm = api.glfwGetInputMode(self.handle, api.GLFW_CURSOR)
+        return self._cursor_modes_get.get(libapi_cm, None)
 
     @cursor_mode.setter
     def cursor_mode(self, mode):
-        api.glfwSetInputMode(self.handle, api.GLFW_CURSOR, self._cursor_modes_set.get(mode, None))
+        pyglfw_cm = self._cursor_modes_set.get(mode, None)
+        api.glfwSetInputMode(self.handle, api.GLFW_CURSOR, pyglfw_cm)
 
     @property
     def sticky_keys(self):
@@ -250,7 +259,8 @@ class Window(object):
 
     @property
     def sticky_mice(self):
-        return bool(api.glfwGetInputMode(self.handle, api.GLFW_STICKY_MOUSE_BUTTONS))
+        return bool(api.glfwGetInputMode(self.handle,
+                                         api.GLFW_STICKY_MOUSE_BUTTONS))
 
     @sticky_mice.setter
     def sticky_mice(self, flag):
@@ -274,75 +284,97 @@ class Window(object):
     MOD_SUPER = api.GLFW_MOD_SUPER
 
     @classmethod
-    def _callback(cls, functype, func):
+    def _wcb(cls, functype, func):
         if not func:
             return None
+
         def wrap(handle, *args, **kwargs):
             window = cls._instance_.get(handle.get_void_p().value, None)
             func(window, *args, **kwargs)
         return functype(wrap)
 
     def set_key_callback(self, callback):
-        self._key_callback = self._callback(api.GLFWkeyfun, callback)
+        self._key_callback = self._wcb(api.GLFWkeyfun, callback)
         api.glfwSetKeyCallback(self.handle, self._key_callback)
 
     def set_char_callback(self, callback):
         def wrap(self, char):
             char = _unichr(char)
             callback(self, char)
-        self._char_callback = self._callback(api.GLFWcharfun, wrap)
+        self._char_callback = self._wcb(api.GLFWcharfun, wrap)
         api.glfwSetCharCallback(self.handle, self._char_callback)
 
     def set_scroll_callback(self, callback):
-        self._scroll_callback = self._callback(api.GLFWscrollfun, callback)
-        api.glfwSetScrollCallback(self.handle, self._scroll_callback)
+        self._scroll_callback = self._wcb(api.GLFWscrollfun,
+                                          callback)
+        api.glfwSetScrollCallback(self.handle,
+                                  self._scroll_callback)
 
     def set_cursor_enter_callback(self, callback):
         def wrap(self, flag):
             flag = bool(flag)
             callback(self, flag)
-        self._cursor_enter_callback = self._callback(api.GLFWcursorenterfun, wrap)
-        api.glfwSetCursorEnterCallback(self.handle, self._cursor_enter_callback)
+        self._cursor_enter_callback = self._wcb(api.GLFWcursorenterfun,
+                                                wrap)
+        api.glfwSetCursorEnterCallback(self.handle,
+                                       self._cursor_enter_callback)
 
     def set_cursor_pos_callback(self, callback):
-        self._cursor_pos_callback = self._callback(api.GLFWcursorposfun, callback)
-        api.glfwSetCursorPosCallback(self.handle, self._cursor_pos_callback)
+        self._cursor_pos_callback = self._wcb(api.GLFWcursorposfun,
+                                              callback)
+        api.glfwSetCursorPosCallback(self.handle,
+                                     self._cursor_pos_callback)
 
     def set_mouse_button_callback(self, callback):
-        self._mouse_button_callback = self._callback(api.GLFWmousebuttonfun, callback)
-        api.glfwSetMouseButtonCallback(self.handle, self._mouse_button_callback)
+        self._mouse_button_callback = self._wcb(api.GLFWmousebuttonfun,
+                                                callback)
+        api.glfwSetMouseButtonCallback(self.handle,
+                                       self._mouse_button_callback)
 
     def set_window_pos_callback(self, callback):
-        self._window_pos_callback = self._callback(api.GLFWwindowposfun, callback)
-        api.glfwSetWindowPosCallback(self.handle, self._window_pos_callback)
+        self._window_pos_callback = self._wcb(api.GLFWwindowposfun,
+                                              callback)
+        api.glfwSetWindowPosCallback(self.handle,
+                                     self._window_pos_callback)
 
     def set_window_size_callback(self, callback):
-        self._window_size_callback = self._callback(api.GLFWwindowsizefun, callback)
-        api.glfwSetWindowSizeCallback(self.handle, self._window_size_callback)
+        self._window_size_callback = self._wcb(api.GLFWwindowsizefun,
+                                               callback)
+        api.glfwSetWindowSizeCallback(self.handle,
+                                      self._window_size_callback)
 
     def set_window_close_callback(self, callback):
-        self._window_close_callback = self._callback(api.GLFWwindowclosefun, callback)
-        api.glfwSetWindowCloseCallback(self.handle, self._window_close_callback)
+        self._window_close_callback = self._wcb(api.GLFWwindowclosefun,
+                                                callback)
+        api.glfwSetWindowCloseCallback(self.handle,
+                                       self._window_close_callback)
 
     def set_window_refresh_callback(self, callback):
-        self._window_refresh_callback = self._callback(api.GLFWwindowrefreshfun, callback)
-        api.glfwSetWindowRefreshCallback(self.handle, self._window_refresh_callback)
+        self._window_refresh_callback = self._wcb(api.GLFWwindowrefreshfun,
+                                                  callback)
+        api.glfwSetWindowRefreshCallback(self.handle,
+                                         self._window_refresh_callback)
 
     def set_window_focus_callback(self, callback):
         def wrap(self, flag):
             flag = bool(flag)
             callback(self, flag)
-        self._window_focus_callback = self._callback(api.GLFWwindowfocusfun, wrap)
-        api.glfwSetWindowFocusCallback(self.handle, self._window_focus_callback)
+        self._window_focus_callback = self._wcb(api.GLFWwindowfocusfun,
+                                                wrap)
+        api.glfwSetWindowFocusCallback(self.handle,
+                                       self._window_focus_callback)
 
     def set_window_iconify_callback(self, callback):
         def wrap(self, flag):
             flag = bool(flag)
             callback(self, flag)
-        self._window_iconify_callback = self._callback(api.GLFWwindowiconifyfun, wrap)
-        api.glfwSetWindowIconifyCallback(self.handle, self._window_iconify_callback)
+        self._window_iconify_callback = self._wcb(api.GLFWwindowiconifyfun,
+                                                  wrap)
+        api.glfwSetWindowIconifyCallback(self.handle,
+                                         self._window_iconify_callback)
 
     def set_framebuffer_size_callback(self, callback):
-        self._framebuffer_size_callback = self._callback(api.GLFWframebuffersizefun, callback)
-        api.glfwSetFramebufferSizeCallback(self.handle, self._framebuffer_size_callback)
-
+        self._framebuffer_size_callback = self._wcb(api.GLFWframebuffersizefun,
+                                                    callback)
+        api.glfwSetFramebufferSizeCallback(self.handle,
+                                           self._framebuffer_size_callback)
