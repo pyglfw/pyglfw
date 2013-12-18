@@ -1,8 +1,11 @@
+
 ======
 pyglfw
 ======
 
 Python bindings for the `GLFW <http://www.glfw.org/>`_ library.
+
+Home: https://bitbucket.org/pyglfw/pyglfw
 
 Introduction
 ============
@@ -85,6 +88,11 @@ On Windows
     > python.exe setup.py bdist_wininst
 
 then run exe installer from dist folder.
+
+NOTE: Prebuilt exe installers could be found on the
+project's home `download page`__
+
+__<https://bitbucket.org/pyglfw/pyglfw/downloads>
 
 -------
 
