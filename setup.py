@@ -1,7 +1,7 @@
 from distutils.core import setup
 
 setup(name='pyglfw',
-      version='3.0',
+      version='0.1.0',
       description='Python bindings for the GLFW library',
       author='Roman Valov',
       author_email='roman.valov@gmail.com',
