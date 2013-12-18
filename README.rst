@@ -1,4 +1,3 @@
-
 ======
 pyglfw
 ======
@@ -8,10 +7,10 @@ Python bindings for the `GLFW <http://www.glfw.org/>`_ library.
 Introduction
 ============
 
-At the moment of development there were numerous
-implementations of bindings for glfw library to python.
-Besides NIH syndrome these binding were developed
-with the following assumptions in mind:
+At the moment of development there were already available
+numerous variants of bindings for the glfw library to python.
+Besides driving by NIH syndrome these binding were developed
+with following assumptions in mind:
 
  - Compatibility with GLFW version 3 and higher api.
  - Support for both Python2 (2.7) and Python3 (3.3+).
@@ -22,15 +21,15 @@ Platforms
 ---------
 
 During development these bindings were proven to work 
-in all major operating systems environments including
+on all major operating systems environments including
 Windows, OSX and Linux.
 
 CPython implementations were tested against versions
-of Python 2.7 and Python 3.3 with no issues.
+of Python 2.7 and Python 3.3 with no serious issues found.
 
-By the way testing was performed with PyPy and reveals
-issue with ctypes implemenation in PyPy. Issue was fixed
-and should be available as a part of PyPy 2.2.2 release.
+By the way testing was performed with PyPy. As a result there
+were revealed issue with ctypes implemenation in PyPy. Issue
+was fixed and should be available as a part of PyPy 2.2.2.
 
 
 Licensing
@@ -47,8 +46,9 @@ provided in the LICENSE file.
 Installation
 ============
 
-Ensure you've installed GLFW library itself according
-to instructions on project's page.
+Ensure you've installed GLFW shared library binary
+according to instructions on project's page related
+to installed operating system.
 
 At the moment these binding could be installed with
 provided setup.py script. To do this retrieve sources
@@ -98,7 +98,7 @@ parameters. As a rule of thumb all functions that
 return void and fill several values via pass-by-ref
 parameters are mapped to functions returning tuple
 of values. And functions that return pointer to array
-with number of items via pass-by-ref parameter are 
+with number of items set via pass-by-ref parameter are 
 mapped to functions returning list of items. I.e.:
 
 ::
@@ -149,9 +149,10 @@ Pythonic **pyglfw** package handles following moments:
    or from python 3).
  - Raising exceptions in case of errors.
  - Eliminates need to use of ctypes structures and
-   callback prototypes.
- - Holds references for set to callback functions.
- - Provide pythonic types for callbacks.
+   ctypes-based callback prototypes.
+ - Holds references for set to callback functions,
+   so there is no need to hold them outside.
+ - Provide pythonic types for callback functions.
 
 and following functionality is restricted:
 
@@ -162,7 +163,7 @@ and following functionality is restricted:
    used callback. It's unable to certainly map them
    to python object in every case.
  - No check for extensions and proc address query.
-   This can be handled with dedicated frameworks
+   This should be handled with dedicated frameworks
    like PyOpenGL.
 
 Side-by-Side
@@ -402,5 +403,4 @@ pyglfw:
    if js:
        joy_name = js.name
        joy_axes = js.axes
-
 
