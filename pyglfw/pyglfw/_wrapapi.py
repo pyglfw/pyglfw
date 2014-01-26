@@ -11,11 +11,11 @@
 import threading
 
 _local = threading.local()
-_local.error = None
-
 
 def _error_check(func):
     def wrap(*args, **kwargs):
+        if not hasattr(_local, 'error'):
+            _local.error = None
         result = func(*args, **kwargs)
         err, _local.error = _local.error, None
         if err:
