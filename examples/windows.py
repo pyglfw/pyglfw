@@ -33,7 +33,7 @@ if __name__ == '__main__':
         for i in range(4):
             windows[i].make_current()
 
-            glClear(GL_COLOR_BUFFER_BIT);
+            glClear(GL_COLOR_BUFFER_BIT)
             windows[i].swap_buffers()
 
             if windows[i].should_close:
