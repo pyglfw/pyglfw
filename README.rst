@@ -5,6 +5,7 @@ pyglfw
 Python bindings for the `GLFW <http://www.glfw.org/>`_ library.
 
 Home: https://bitbucket.org/pyglfw/pyglfw
+Mirror: https://github.com/pyglfw/pyglfw
 
 Introduction
 ============
@@ -52,11 +53,21 @@ Ensure you've installed GLFW shared library binary
 according to instructions on project's page related
 to installed operating system.
 
-At the moment these binding could be installed with
-provided setup.py script. To do this retrieve sources
-either cloning repository or downloading and unpacking
-source archive. Following commands depend on system
-used.
+Project releases are available from pypi and could
+be installed using pip or easy_install, i.e.:
+
+::
+
+    # pip install pyglfw
+
+Moreover exe installables for the windows platform
+could be found on the project's home `download page`__
+
+__ https://bitbucket.org/pyglfw/pyglfw/downloads
+
+Latest version could be installed from cloned source
+with provided setup.py script. Following commands
+depend on system used:
 
 
 On Linux and OSX
@@ -87,11 +98,6 @@ On Windows
     > python.exe setup.py bdist_wininst
 
 then run exe installer from dist folder.
-
-NOTE: Prebuilt exe installers could be found on the
-project's home `download page`__
-
-__ https://bitbucket.org/pyglfw/pyglfw/downloads
 
 -------
 
