@@ -3,7 +3,6 @@
 
 import sys
 import math
-import time
 import threading
 
 import pyglfw.pyglfw as fw
