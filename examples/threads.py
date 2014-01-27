@@ -11,14 +11,16 @@ from OpenGL.GL import *
 
 running = True
 
+
 class Thread(object):
-    __slots__ = [ 'window', 'title', 'r', 'g', 'b', 'id' ]
+    __slots__ = ['window', 'title', 'r', 'g', 'b', 'id']
 
     def __init__(self, title, r, g, b):
         self.title = title
         self.r = r
         self.g = g
         self.b = b
+
 
 def thread_main(thread):
     t.window.swap_interval(1)
@@ -31,7 +33,9 @@ def thread_main(thread):
             thread.window.swap_buffers()
 
 if __name__ == '__main__':
-    threads = Thread('Red', 1.0, 0.0, 0.0), Thread('Green', 0.0, 1.0, 0.0), Thread('Blue', 0.0, 0.0, 1.0)
+    threads = (Thread('Red', 1.0, 0.0, 0.0),
+               Thread('Green', 0.0, 1.0, 0.0),
+               Thread('Blue', 0.0, 0.0, 1.0))
 
     if not fw.init():
         sys.exit(1)

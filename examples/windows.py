@@ -7,13 +7,15 @@ import pyglfw.pyglfw as fw
 from OpenGL.GL import *
 
 titles = "Foo", "Bar", "Baz", "Quux"
-colors = (0.0, 0.0, 1.0, 0.0), (1.0, 0.0, 0.0, 0.0), (0.0, 1.0, 0.0, 0.0), (1.0, 1.0, 0.0, 0.0)
+colors = ((0.0, 0.0, 1.0, 0.0), (1.0, 0.0, 0.0, 0.0),
+         (0.0, 1.0, 0.0, 0.0), (1.0, 1.0, 0.0, 0.0))
 
 if __name__ == '__main__':
     running = True
-    windows = [ None, None, None, None ]
+    windows = [None, None, None, None]
 
-    if not fw.init(): sys.exit(1)
+    if not fw.init():
+        sys.exit(1)
 
     fw.Window.hint(visible=False)
 

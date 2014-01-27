@@ -8,9 +8,10 @@ import random
 from OpenGL.GL import *
 from OpenGL.GLU import *
 
-WIDTH  = 400
+WIDTH = 400
 HEIGHT = 400
 OFFSET = 50
+
 
 def open_window(title, share, posX, posY):
     fw.Window.hint(visible=False)
@@ -23,17 +24,21 @@ def open_window(title, share, posX, posY):
 
     return window
 
+
 def create_texture():
-    pixels = array.array('B', (random.randint(0, 255) for i in range(256 * 256)))
+    pixels = array.array('B',
+                        (random.randint(0, 255) for i in range(256 * 256)))
 
     texture = glGenTextures(1)
     glBindTexture(GL_TEXTURE_2D, texture)
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, 256, 256, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, pixels.tobytes())
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, 256, 256, 0,
+                 GL_LUMINANCE, GL_UNSIGNED_BYTE, pixels.tobytes())
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
 
     return texture
+
 
 def draw_quad(texture):
     width, height = fw.Window.find_current().framebuffer_size
@@ -64,13 +69,14 @@ def draw_quad(texture):
 
     glEnd()
 
+
 if __name__ == '__main__':
     import sys
 
     if not fw.init():
         sys.exit(1)
 
-    windows = [ None, None ]
+    windows = [None, None]
     windows[0] = open_window('First', None, OFFSET, OFFSET)
 
     texture = create_texture()
