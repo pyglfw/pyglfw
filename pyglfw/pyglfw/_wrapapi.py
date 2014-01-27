@@ -14,8 +14,7 @@ _local = threading.local()
 
 def _error_check(func):
     def wrap(*args, **kwargs):
-        if not hasattr(_local, 'error'):
-            _local.error = None
+        _local.error = None
         result = func(*args, **kwargs)
         err, _local.error = _local.error, None
         if err:
