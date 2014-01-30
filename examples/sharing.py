@@ -17,12 +17,11 @@ def open_window(title, share, posX, posY):
     fw.Window.hint(visible=False)
     window = fw.Window(WIDTH, HEIGHT, title, None, share)
 
-    window.make_current()
     window.swap_interval(1)
     window.pos = posX, posY
     window.show()
 
-    return window
+    return window.make_current()
 
 
 def create_texture():
@@ -86,17 +85,17 @@ if __name__ == '__main__':
 
     windows[1] = open_window('Second', windows[0], x + width + OFFSET, y)
 
-    windows[0].make_current()
-    glColor3f(0.6, 0.0, 0.6)
-    windows[1].make_current()
-    glColor3f(0.6, 0.6, 0.0)
+    with windows[0]:
+        glColor3f(0.6, 0.0, 0.6)
+    with windows[1]:
+        glColor3f(0.6, 0.6, 0.0)
 
     while not windows[0].should_close and not windows[1].should_close:
-        windows[0].make_current()
-        draw_quad(texture)
+        with windows[0]:
+            draw_quad(texture)
 
-        windows[1].make_current()
-        draw_quad(texture)
+        with windows[1]:
+            draw_quad(texture)
 
         windows[0].swap_buffers()
         windows[1].swap_buffers()
