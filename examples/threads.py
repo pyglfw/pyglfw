@@ -22,7 +22,7 @@ class Thread(object):
 
 
 def thread_main(thread):
-    t.window.swap_interval(1)
+    thread.window.swap_interval(1)
 
     with thread.window:
         while running:
