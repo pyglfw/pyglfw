@@ -26,11 +26,11 @@ if __name__ == '__main__':
 
     assert Window.find_current() is None
 
-    w.make_current()
+    Window.make_current(w)
 
     assert Window.find_current() is w
 
-    w.null_current()
+    Window.make_current(None)
 
     assert Window.find_current() is None
 
