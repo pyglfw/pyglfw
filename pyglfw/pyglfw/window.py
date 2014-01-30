@@ -48,23 +48,24 @@ class Window(object):
         self._framebuffer_size_callback = None
 
     def __enter__(self):
-        if not hasattr(self._contexts_, 'ctxstack'):
-            self._contexts_.ctxstack = []
-        self._contexts_.ctxstack += [self.find_current()]
+        if not hasattr(Window._contexts_, 'ctxstack'):
+            Window._contexts_.ctxstack = []
+        Window._contexts_.ctxstack += [self.find_current()]
 
         api.glfwMakeContextCurrent(self.handle)
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        if not self._contexts_.ctxstack:
+        if not Window._contexts_.ctxstack:
             raise RuntimeError('Corrupted context stack')
 
-        _ctx = self._contexts_.ctxstack.pop()
+        _ctx = Window._contexts_.ctxstack.pop()
         api.glfwMakeContextCurrent(_ctx and _ctx.handle or _ctx)
         return False
 
     def make_current(self):
-        if hasattr(Window._contexts_, 'ctxstack') and Window._contexts_.ctxstack:
+        if hasattr(Window._contexts_, 'ctxstack') and \
+           Window._contexts_.ctxstack:
             raise RuntimeError('This function cannot be used inside `with`')
         api.glfwMakeContextCurrent(self and self.handle or self)
         return self
