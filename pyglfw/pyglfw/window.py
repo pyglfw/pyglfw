@@ -70,6 +70,12 @@ class Window(object):
         return self
 
     @classmethod
+    def null_current(cls):
+        if hasattr(cls._contexts_, 'ctxstack') and cls._contexts_.ctxstack:
+            raise RuntimeError('This function cannot be used inside `with`')
+        api.glfwMakeContextCurrent(None)
+
+    @classmethod
     def find_current(cls):
         find_handle = api.glfwGetCurrentContext().get_void_p()
         if bool(find_handle):
