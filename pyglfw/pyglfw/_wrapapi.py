@@ -12,6 +12,7 @@ import threading
 
 _local = threading.local()
 
+
 def _error_check(func):
     def wrap(*args, **kwargs):
         _local.error = None
