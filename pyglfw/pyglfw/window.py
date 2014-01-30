@@ -13,11 +13,12 @@ from .common import _str, _utf, _unichr
 from .hint import Hints
 from .inputs import Keys, Mice
 from .monitor import _monitor_obj
+from threading import local
 
 
 class Window(object):
     _instance_ = {}
-    _contexts_ = []
+    _contexts_ = local()
 
     def __init__(self, width, height, title, monitor=None, shared=None):
         mon_handle = monitor and monitor.handle or None
@@ -48,18 +49,23 @@ class Window(object):
 
     def __enter__(self):
         api.glfwMakeContextCurrent(self.handle)
-        self.__class__._contexts_ += [self]
+        if not hasattr(self._contexts_, 'ctxstack'):
+            self._contexts_.ctxstack = []
+        self._contexts_.ctxstack += [self]
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        if self.__class__._contexts_:
-            _ctx = self.__class__._contexts_.pop().handle
-            api.glfwMakeContextCurrent(_ctx)
+        if not self == self._contexts_.ctxstack.pop():
+            raise RuntimeError('Corrupted context stack')
+        if self._contexts_.ctxstack:
+            api.glfwMakeContextCurrent(self._contexts_.ctxstack[-1])
         else:
             api.glfwMakeContextCurrent(None)
         return False
 
     def make_current(self):
+        if hasattr(self._contexts_, 'ctxstack'):
+            raise RuntimeError('This function cannot be used inside `with`')
         api.glfwMakeContextCurrent(self.handle)
 
     @classmethod
