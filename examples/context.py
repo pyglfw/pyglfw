@@ -24,15 +24,34 @@ if __name__ == '__main__':
 
     print(w.context_version)
 
+    assert Window.find_current() is None
+
     w.make_current()
+
+    assert Window.find_current() is w
+
+    w.null_current()
+
+    assert Window.find_current() is None
+
+    w.make_current()
+
+    assert Window.find_current() is w
 
     k = w.keys
 
     while not w.should_close:
-        w.swap_buffers()
-        poll_events()
+        with w:
+            w.swap_buffers()
+            poll_events()
 
-        if k.escape:
-            w.should_close = True
+            if k.escape:
+                w.should_close = True
+
+    assert Window.find_current() is w
+
+    w.close()
+
+    assert Window.find_current() is None
 
     terminate()
