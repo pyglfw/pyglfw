@@ -24,13 +24,26 @@ if __name__ == '__main__':
 
     print(w.context_version)
 
+    def make_context_current(context):
+        try:
+            import types
+            f_type = types.FunctionType
+        except:
+            import new
+            f_type = new.function
+
+        make_current = Window.make_current
+        if not isinstance(make_current, f_type):
+            make_current = make_current.__func__
+        return make_current(context)
+
     assert Window.find_current() is None
 
-    Window.make_current(w)
+    make_context_current(w)
 
     assert Window.find_current() is w
 
-    Window.make_current(None)
+    make_context_current(None)
 
     assert Window.find_current() is None
 
