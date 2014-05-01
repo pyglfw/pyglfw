@@ -61,10 +61,16 @@ be installed using pip or easy_install, i.e.:
 
     # pip install pyglfw
 
-Moreover exe installables for the windows platform
+Moreover exe installables for the Windows platform
 could be found on the project's home `download page`__
 
 __ https://bitbucket.org/pyglfw/pyglfw/downloads
+
+In addition, Ubuntu users are able to install pyglfw
+using project's `PPA`__. Archive also provides packages
+for glfw3 library itself and backported python-opengl.
+
+__ https://launchpad.net/~pyglfw/+archive/pyglfw
 
 Latest version could be installed from cloned source
 with provided setup.py script. Following commands
