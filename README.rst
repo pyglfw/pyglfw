@@ -16,9 +16,9 @@ numerous variants of bindings for the glfw library to python.
 Besides driving by NIH syndrome these binding were developed
 with following assumptions in mind:
 
- - Compatibility with GLFW version 3 and higher api.
+ - Compatibility with GLFW version 3 and higher API.
  - Support for both Python2 (2.7) and Python3 (3.3+).
- - Provide low-level and pythonic api separately.
+ - Provide low-level and pythonic API separately.
  - No external dependencies. Thus using ctypes.
 
 Platforms
@@ -106,7 +106,7 @@ Libapi
 ======
 
 Low-level **libapi** package serves as thin wrapper
-above GLFW library. It's api mostly resemble one of
+above GLFW library. It's API mostly resemble one of
 C library except functions that require pass-by-ref
 parameters. As a rule of thumb all functions that
 return void and fill several values via pass-by-ref
@@ -157,7 +157,7 @@ Pyglfw
 
 Pythonic **pyglfw** package handles following moments:
 
- - Encapsulation of struct pointers and functions api
+ - Encapsulation of struct pointers and functions API
    into objects with properties and methods.
  - Transparent usage of strings (either from python 2
    or from python 3).
