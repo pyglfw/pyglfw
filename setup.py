@@ -1,7 +1,8 @@
 from distutils.core import setup
+from pyglfw import __version__
 
 setup(name='pyglfw',
-      version='0.2.0',
+      version=__version__,
       description='Python bindings for the GLFW library',
       url='https://bitbucket.org/pyglfw/pyglfw',
       author='Roman Valov',
