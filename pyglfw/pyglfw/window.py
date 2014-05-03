@@ -63,13 +63,6 @@ class Window(object):
         api.glfwMakeContextCurrent(_ctx and _ctx.handle or _ctx)
         return False
 
-    def make_current(self):
-        if hasattr(Window._contexts_, 'ctxstack') and \
-           Window._contexts_.ctxstack:
-            raise RuntimeError('This function cannot be used inside `with`')
-        api.glfwMakeContextCurrent(self and self.handle or self)
-        return self
-
     @classmethod
     def swap_current(cls, _ctx):
         if hasattr(Window._contexts_, 'ctxstack') and \
@@ -77,6 +70,9 @@ class Window(object):
             raise RuntimeError('This function cannot be used inside `with`')
         api.glfwMakeContextCurrent(_ctx and _ctx.handle or _ctx)
         return _ctx
+
+    def make_current(self):
+        return self.swap_current(self)
 
     @classmethod
     def find_current(cls):
