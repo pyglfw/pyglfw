@@ -17,7 +17,7 @@ from .c_helper import *
 if sys.platform == 'win32':
     _lib = cdll.glfw3
 elif sys.platform == 'darwin':
-    _lib = cdll.LoadLibrary('libglfw3.dylib')
+    _lib = cdll.LoadLibrary('libglfw.3.dylib')
 else:
     _lib = cdll.LoadLibrary('libglfw.so.3')
 
