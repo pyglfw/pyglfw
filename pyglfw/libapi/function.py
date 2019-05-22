@@ -27,6 +27,7 @@ _declare = DeclareFunction(_lib, c_func)
 
 # ==== common ====
 
+_declare('glfwInitHint', c_void, c_int, c_int)
 _declare('glfwInit', c_int)
 _declare('glfwTerminate')
 _declare('glfwGetVersion', c_void, (POINTER(c_int),), (POINTER(c_int),), (POINTER(c_int),))
