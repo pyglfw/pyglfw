@@ -241,3 +241,5 @@ GLFW_MOD_SHIFT              = 0x0001
 GLFW_MOD_CONTROL            = 0x0002
 GLFW_MOD_ALT                = 0x0004
 GLFW_MOD_SUPER              = 0x0008
+GLFW_MOD_CAPS_LOCK          = 0x0010
+GLFW_MOD_NUM_LOCK           = 0x0020
